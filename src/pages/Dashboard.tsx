@@ -40,7 +40,7 @@ export default function Dashboard() {
             Role
           </h3>
           <p className="text-lg font-medium text-slate-900 mt-2">
-            {user?.roles?.join(", ")}
+            {user?.role}
           </p>
         </div>
       </div>
