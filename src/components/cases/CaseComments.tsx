@@ -76,40 +76,7 @@ export default function CaseComments({ caseId }: Props) {
         Comments
       </h3>
 
-      <div className="space-y-3">
-        {comments.map((c) => (
-          <div
-            key={c.id}
-            className="border rounded-md p-3 bg-white"
-          >
-            <div className="flex justify-between items-center">
-              <p className="text-xs text-gray-500">
-                {c.authorEmail} •{" "}
-                {new Date(c.createdAt).toLocaleString()}
-              </p>
-
-              {isAdmin && (
-                <button
-                  onClick={() => handleDelete(c.id)}
-                  className="text-xs text-red-600 hover:underline"
-                >
-                  Delete
-                </button>
-              )}
-            </div>
-
-            <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap">
-              {c.content}
-            </p>
-
-            <p className="text-xs text-gray-400 mt-1">
-              Sensitivity: {c.sensitivityLevel}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* Add Comment */}
+            {/* Add Comment */}
       <div className="space-y-3 border rounded-xl p-4 bg-white">
         <textarea
           value={content}
@@ -141,6 +108,39 @@ export default function CaseComments({ caseId }: Props) {
         >
           {loading ? "Posting..." : "Post Comment"}
         </button>
+      </div>
+
+      <div className="space-y-3">
+        {comments.map((c) => (
+          <div
+            key={c.id}
+            className="border rounded-md p-3 bg-white"
+          >
+            <div className="flex justify-between items-center">
+              <p className="text-xs text-gray-500">
+                {c.authorEmail} •{" "}
+                {new Date(c.createdAt).toLocaleString()}
+              </p>
+
+              {isAdmin && (
+                <button
+                  onClick={() => handleDelete(c.id)}
+                  className="text-xs text-red-600 hover:underline"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+
+            <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap">
+              {c.content}
+            </p>
+
+            <p className="text-xs text-gray-400 mt-1">
+              Sensitivity: {c.sensitivityLevel}
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   );

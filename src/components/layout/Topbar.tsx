@@ -20,8 +20,8 @@ export default function Topbar({ onMenuClick }: Props) {
         </button>
 
         <div className="text-sm text-slate-600">
-          {user?.tenantId
-            ? `Organization: ${user.tenantId}`
+          {user?.organizationName
+            ? `Organization: ${user.organizationName}`
             : "No organization selected"}
         </div>
       </div>

@@ -1,7 +1,22 @@
 import { useAuthStore } from "../store/auth.store";
+import { useCaseStore } from "../store/case.store";
+import { useEffect } from "react";
 
 export default function Dashboard() {
   const user = useAuthStore((s) => s.user);
+  const { totalElements, fetchCases, fetchMyCases } = useCaseStore();
+
+  const isAdmin = user?.role === "ADMIN";
+
+  useEffect(() => {
+    if (!user) return;
+
+    if (isAdmin) {
+      fetchCases(0, 1); // we just need count
+    } else {
+      fetchMyCases(0, 1);
+    }
+  }, [user]);
 
   return (
     <div className="space-y-8">
@@ -22,7 +37,7 @@ export default function Dashboard() {
             Active Cases
           </h3>
           <p className="text-3xl font-semibold text-slate-900 mt-2">
-            0
+            {totalElements}
           </p>
         </div>
 
@@ -31,7 +46,7 @@ export default function Dashboard() {
             Organization
           </h3>
           <p className="text-lg font-medium text-slate-900 mt-2">
-            {user?.tenantId ?? "Not assigned"}
+            {user?.organizationName ?? "Not assigned"}
           </p>
         </div>
 

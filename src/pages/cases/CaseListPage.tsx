@@ -1,13 +1,22 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCaseStore } from "@/store/case.store";
 import { useAuthStore } from "@/store/auth.store";
-import { statusStyles } from "@/lib/caseStyles";
+import { sensitivityStyles, statusStyles } from "@/lib/caseStyles";
 import { useNavigate } from "react-router-dom";
 
 export default function CaseListPage() {
 
     const navigate = useNavigate();
+    const [search, setSearch] = useState("");
+    const [status, setStatus] = useState("");
+    const [sensitivity, setSensitivity] = useState("");
+
+    const [activeFilters, setActiveFilters] = useState<{
+      title?: string
+      status?: string
+      sensitivity?: string
+    }>({})
 
   const { user } = useAuthStore();
   const {
@@ -23,25 +32,21 @@ export default function CaseListPage() {
   const isAdmin = user?.role === "ADMIN";
 
   useEffect(() => {
-    if (isAdmin) {
-      fetchCases(0, 20);
-    } else {
-      fetchMyCases(0, 10);
-    }
-  }, [isAdmin]);
+  if (isAdmin) {
+    fetchCases(0, 10, {
+      title: search,
+      status,
+      sensitivity,
+    });
+  } else {
+    fetchMyCases(0, 10, {
+      title: search,
+      status,
+      sensitivity,
+    });
+  }
+}, [isAdmin]);
 
-// useEffect(() => {
-//   if (!user) return;
-
-//   if (user.role === "ADMIN") {
-//     fetchCases(0, 20);
-//   } else {
-//     fetchMyCases(0, 10);
-//   }
-// }, [user]);
-console.log("USER:", user);
-console.log("ROLE:", user?.role);
-console.log("CASES:", cases);
 
   if (loading) {
     return <div className="p-6 text-sm text-gray-500">Loading cases...</div>;
@@ -64,6 +69,76 @@ console.log("CASES:", cases);
         </Link>
       </div>
 
+      {/* Filters */}
+<div className="bg-white border rounded-xl p-4 flex flex-col md:flex-row gap-4 md:items-end">
+  
+  {/* Search */}
+  <div className="flex flex-col">
+    <label className="text-xs text-gray-500 mb-1">Search Title</label>
+    <input
+      type="text"
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      className="border rounded-md px-3 py-2 text-sm w-56"
+      placeholder="Search by title..."
+    />
+  </div>
+
+  {/* Status Filter */}
+  <div className="flex flex-col">
+    <label className="text-xs text-gray-500 mb-1">Status</label>
+    <select
+      value={status}
+      onChange={(e) => setStatus(e.target.value)}
+      className="border rounded-md px-3 py-2 text-sm w-40"
+    >
+      <option value="">All</option>
+      <option value="OPEN">OPEN</option>
+      <option value="IN_PROGRESS">IN_PROGRESS</option>
+      <option value="CLOSED">CLOSED</option>
+      <option value="ARCHIVED">ARCHIVED</option>
+    </select>
+  </div>
+
+  {/* Sensitivity Filter */}
+  <div className="flex flex-col">
+    <label className="text-xs text-gray-500 mb-1">Sensitivity</label>
+    <select
+      value={sensitivity}
+      onChange={(e) => setSensitivity(e.target.value)}
+      className="border rounded-md px-3 py-2 text-sm w-40"
+    >
+      <option value="">All</option>
+      <option value="LOW">LOW</option>
+      <option value="MEDIUM">MEDIUM</option>
+      <option value="HIGH">HIGH</option>
+      <option value="CRITICAL">CRITICAL</option>
+    </select>
+  </div>
+
+  {/* Apply Button */}
+  <button
+  onClick={() => {
+  const filters = {
+    title: search || undefined,
+    status: status || undefined,
+    sensitivity: sensitivity || undefined,
+  };
+
+  setActiveFilters(filters);
+
+  if (isAdmin) {
+    fetchCases(0, 10, filters);
+  } else {
+    fetchMyCases(0, 10, filters);
+  }
+}}
+    className="px-4 py-2 bg-gray-900 text-white text-sm rounded-md hover:bg-gray-800"
+  >
+    Apply
+  </button>
+</div>
+
       <div className="bg-white border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-gray-600">
@@ -71,6 +146,7 @@ console.log("CASES:", cases);
               <th className="text-left px-6 py-3">Title</th>
               <th className="text-left px-6 py-3">Status</th>
               <th className="text-left px-6 py-3">Owner</th>
+              <th className="text-left px-6 py-3">Sensitivity</th>
             </tr>
           </thead>
           <tbody>
@@ -91,6 +167,16 @@ console.log("CASES:", cases);
                 <td className="px-6 py-4 text-gray-600">
                   {c.ownerEmail}
                 </td>
+
+                <td className="px-6 py-4">
+                <span
+                    className={`px-2 py-1 text-xs font-medium rounded-md ${
+                    sensitivityStyles[c.sensitivityLevel]
+                    }`}
+                >
+                    {c.sensitivityLevel}
+                </span>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -103,10 +189,11 @@ console.log("CASES:", cases);
           <button
             key={i}
             onClick={() =>
-              isAdmin
-                ? fetchCases(i, 20)
-                : fetchMyCases(i, 10)
-            }
+  isAdmin
+    ? fetchCases(i, 10, activeFilters)
+    : fetchMyCases(i, 10, activeFilters)
+}
+            disabled={loading}
             className={`px-3 py-1 text-sm rounded-md border ${
               i === page
                 ? "bg-gray-900 text-white"

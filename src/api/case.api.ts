@@ -16,26 +16,63 @@ export const caseApi = {
   =============================== */
 
   // ADMIN - all tenant cases
-  getCases: async (page = 0, size = 20) => {
-    const res = await api.get<PageResponse<CaseResponse>>(
-      `/api/cases?page=${page}&size=${size}`
-    );
-    return res.data;
-  },
+getCases: async (
+  page = 0,
+  size = 20,
+  filters?: {
+    title?: string
+    status?: string
+    sensitivity?: string
+  }
+) => {
+  const params: Record<string, string | number> = {
+    page,
+    size,
+  }
+
+  if (filters?.title) params.title = filters.title
+  if (filters?.status) params.status = filters.status
+  if (filters?.sensitivity) params.sensitivity = filters.sensitivity
+
+  const res = await api.get<PageResponse<CaseResponse>>(
+    "/api/cases",
+    { params }
+  )
+
+  return res.data
+},
 
   // USER - my cases
-  getMyCases: async (page = 0, size = 10) => {
-    const res = await api.get<PageResponse<CaseResponse>>(
-      `/api/cases/my?page=${page}&size=${size}`
-    );
-    return res.data;
-  },
+getMyCases: async (
+  page = 0,
+  size = 10,
+  filters?: {
+    title?: string
+    status?: string
+    sensitivity?: string
+  }
+) => {
+  const params: Record<string, string | number> = {
+    page,
+    size,
+  }
 
-  // GET single case
-  getCaseById: async (id: number) => {
-    const res = await api.get<CaseResponse>(`/api/cases/${id}`);
-    return res.data;
-  },
+  if (filters?.title) params.title = filters.title
+  if (filters?.status) params.status = filters.status
+  if (filters?.sensitivity) params.sensitivity = filters.sensitivity
+
+  const res = await api.get<PageResponse<CaseResponse>>(
+    "/api/cases/my",
+    { params }
+  )
+
+  return res.data
+},
+
+getCaseById: async (id: number) => {
+  const res = await api.get<CaseResponse>(`/api/cases/${id}`);
+  return res.data;
+},
 
   /* ===============================
      CASE MUTATIONS

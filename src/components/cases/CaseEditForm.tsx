@@ -1,5 +1,3 @@
-// components/cases/CaseEditForm.tsx
-
 import { useState } from "react";
 import { useCaseStore } from "@/store/case.store";
 import type { CaseResponse } from "@/types/case";
@@ -7,11 +5,15 @@ import type { CaseResponse } from "@/types/case";
 interface Props {
   caseData: CaseResponse;
   isOwner: boolean;
+  onCancel: () => void;
+  onSaved: () => void;
 }
 
 export default function CaseEditForm({
   caseData,
   isOwner,
+  onCancel,
+  onSaved,
 }: Props) {
   const { updateCase, loading } = useCaseStore();
 
@@ -32,10 +34,12 @@ export default function CaseEditForm({
       title,
       description,
     });
+
+    onSaved();
   };
 
   return (
-    <div className="bg-white border rounded-xl p-6 space-y-4">
+    <div className="bg-white border rounded-2xl p-6 space-y-4 shadow-sm">
       <h3 className="text-sm font-semibold text-gray-700">
         Edit Case
       </h3>
@@ -55,13 +59,22 @@ export default function CaseEditForm({
         }
       />
 
-      <button
-        onClick={handleSave}
-        disabled={loading}
-        className="px-4 py-2 bg-gray-900 text-white text-sm rounded-md hover:bg-gray-800 disabled:opacity-50"
-      >
-        {loading ? "Saving..." : "Save Changes"}
-      </button>
+      <div className="flex gap-3">
+        <button
+          onClick={handleSave}
+          disabled={loading}
+          className="px-4 py-2 bg-gray-900 text-white text-sm rounded-md hover:bg-gray-800 disabled:opacity-50"
+        >
+          {loading ? "Saving..." : "Save Changes"}
+        </button>
+
+        <button
+          onClick={onCancel}
+          className="px-4 py-2 border text-sm rounded-md hover:bg-gray-50"
+        >
+          Cancel
+        </button>
+      </div>
     </div>
   );
 }

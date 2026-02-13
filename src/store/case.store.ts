@@ -4,7 +4,6 @@ import { create } from "zustand";
 import { caseApi } from "../api/case.api";
 import type {
   CaseResponse,
-  PageResponse,
   CreateCaseRequest,
   UpdateCaseRequest,
   CaseStatus,
@@ -23,9 +22,26 @@ interface CaseState {
   loading: boolean;
   error: string | null;
 
-  // Case actions
-  fetchCases: (page?: number, size?: number) => Promise<void>;
-  fetchMyCases: (page?: number, size?: number) => Promise<void>;
+  fetchCases: (
+    page?: number,
+    size?: number,
+    filters?: {
+      title?: string;
+      status?: string;
+      sensitivity?: string;
+    }
+  ) => Promise<void>;
+
+  fetchMyCases: (
+    page?: number,
+    size?: number,
+    filters?: {
+      title?: string;
+      status?: string;
+      sensitivity?: string;
+    }
+  ) => Promise<void>;
+
   fetchCaseById: (id: number) => Promise<void>;
   createCase: (data: CreateCaseRequest) => Promise<void>;
   updateCase: (id: number, data: UpdateCaseRequest) => Promise<void>;
@@ -52,50 +68,47 @@ export const useCaseStore = create<CaseState>((set) => ({
   /* ===============================
      FETCH ALL (ADMIN)
   =============================== */
-  fetchCases: async (page = 0, size = 20) => {
-    set({ loading: true, error: null });
-    try {
-      const data: PageResponse<CaseResponse> =
-        await caseApi.getCases(page, size);
+fetchCases: async (page = 0, size = 20, filters) => {
+  set({ loading: true, error: null });
 
-      set({
-        cases: data.content,
-        page: data.number,
-        totalPages: data.totalPages,
-        totalElements: data.totalElements,
-        loading: false,
-      });
-    } catch (err: unknown) {
-      set({
-        error: getErrorMessage(err),
-        loading: false,
-      });
-    }
-  },
+  try {
+    const data = await caseApi.getCases(page, size, filters);
 
-  /* ===============================
-     FETCH MY CASES (USER)
-  =============================== */
-  fetchMyCases: async (page = 0, size = 10) => {
-    set({ loading: true, error: null });
-    try {
-      const data: PageResponse<CaseResponse> =
-        await caseApi.getMyCases(page, size);
+    set({
+      cases: data.content,
+      page: data.number,
+      totalPages: data.totalPages,
+      totalElements: data.totalElements,
+      loading: false,
+    });
+  } catch (err: unknown) {
+    set({
+      error: getErrorMessage(err),
+      loading: false,
+    });
+  }
+},
 
-      set({
-        cases: data.content,
-        page: data.number,
-        totalPages: data.totalPages,
-        totalElements: data.totalElements,
-        loading: false,
-      });
-    } catch (err: unknown) {
-      set({
-        error: getErrorMessage(err),
-        loading: false,
-      });
-    }
-  },
+fetchMyCases: async (page = 0, size = 10, filters) => {
+  set({ loading: true, error: null });
+
+  try {
+    const data = await caseApi.getMyCases(page, size, filters);
+
+    set({
+      cases: data.content,
+      page: data.number,
+      totalPages: data.totalPages,
+      totalElements: data.totalElements,
+      loading: false,
+    });
+  } catch (err: unknown) {
+    set({
+      error: getErrorMessage(err),
+      loading: false,
+    });
+  }
+},
 
   /* ===============================
      FETCH ONE

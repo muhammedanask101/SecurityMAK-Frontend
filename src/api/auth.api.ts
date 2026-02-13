@@ -18,15 +18,17 @@ export interface AuthResponse {
     email: string;
     role: string;
     tenantId: string | null;
+    organizationName: string;
+    clearanceLevel: string;
   };
 }
 
 export async function register(data: RegisterRequest): Promise<AuthResponse> {
-  const res = await api.post("/auth/register", data);
+  const res = await api.post("/api/auth/register", data);
   return res.data;
 }
 
 export async function login(data: LoginRequest): Promise<AuthResponse> {
-  const res = await api.post("/auth/login", data);
+  const res = await api.post("/api/auth/login", data);
   return res.data;
 }

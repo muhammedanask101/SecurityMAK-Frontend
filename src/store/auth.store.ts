@@ -6,6 +6,8 @@ interface User {
   email: string;
   role: string;
   tenantId: string | null;
+  organizationName: string;
+  clearanceLevel: string;
 }
 
 interface AuthState {

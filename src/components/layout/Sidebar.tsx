@@ -19,7 +19,7 @@ export default function Sidebar({ onNavigate }: Props) {
   }
 
   return (
-    <aside className="w-64 h-screen bg-slate-900 text-white flex flex-col p-5">
+    <aside className="w-64 min-h-screen sticky top-0 bg-slate-900 text-white flex flex-col p-5">
       <div className="mb-8">
         <h2 className="text-xl font-semibold tracking-tight">
           SecureCase
