@@ -6,6 +6,7 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// 🔐 Attach JWT to every request
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
 
@@ -16,16 +17,25 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// 🔥 Force logout on 401 (except login/register)
 api.interceptors.response.use(
-  (res) => res,
+  (response) => response,
   (error) => {
-    const isAuthRoute =
-      error.config?.url?.includes("/auth/login") ||
-      error.config?.url?.includes("/auth/register");
+    const status = error.response?.status;
+    const url: string | undefined = error.config?.url;
 
-    if (error.response?.status === 401 && !isAuthRoute) {
-      useAuthStore.getState().logout();
-      window.location.href = "/login";
+    const isAuthRoute =
+      url?.includes("/auth/login") ||
+      url?.includes("/auth/register");
+
+    if (status === 401 && !isAuthRoute) {
+      const { logout } = useAuthStore.getState();
+
+      logout(); // clears persisted auth
+
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
     }
 
     return Promise.reject(error);

@@ -20,6 +20,7 @@ export interface AuthResponse {
     tenantId: string | null;
     organizationName: string;
     clearanceLevel: string;
+    enabled: boolean;
   };
 }
 

@@ -28,6 +28,24 @@ export interface CaseResponse {
   ownerEmail: string;
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
+
+  caseType?: string;
+matterType?: string;
+stage?: string;
+courtLevel?: string;
+
+courtName?: string;
+state?: string;
+district?: string;
+caseNumber?: string;
+judgeName?: string;
+
+clientName?: string;
+opposingPartyName?: string;
+assignedAdvocate?: string;
+
+filingDate?: string;
+registrationDate?: string;
 }
 
 export interface CreateCaseRequest {

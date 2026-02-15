@@ -8,6 +8,7 @@ interface User {
   tenantId: string | null;
   organizationName: string;
   clearanceLevel: string;
+  enabled: boolean;
 }
 
 interface AuthState {

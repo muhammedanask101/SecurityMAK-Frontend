@@ -13,6 +13,8 @@ import AuthGuard from "@/auth/AuthGuard";
 import AppLayout from "@/components/layout/AppLayout";
 import ManageUsersPage from "./pages/admin/ManageUsersPage";
 import AuditLogsPage from "./pages/admin/AuditLogsPage";
+import InvitesPage from "./pages/admin/InvitesPage";
+import AcceptInvitePage from "./pages/AcceptInvitePage";
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
         =============================== */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/accept-invite" element={<AcceptInvitePage />} />
 
         {/* ===============================
             PROTECTED ROUTES
@@ -47,6 +50,8 @@ function App() {
 
           <Route path="/admin/users" element={<ManageUsersPage />} />
           <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
+
+          <Route path="/admin/invites" element={<InvitesPage />} />
 
 
         </Route>

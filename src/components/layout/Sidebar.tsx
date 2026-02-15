@@ -10,13 +10,19 @@ export default function Sidebar({ onNavigate }: Props) {
   const location = useLocation();
 
   function navClass(path: string) {
-    const active = location.pathname === path;
-    return `block px-3 py-2 rounded-lg text-sm transition ${
-      active
-        ? "bg-slate-800 text-white"
-        : "text-slate-300 hover:bg-slate-800 hover:text-white"
-    }`;
-  }
+  const pathname = location.pathname;
+
+  const active =
+    path === "/"
+      ? pathname === "/"
+      : pathname.startsWith(path);
+
+  return `block px-3 py-2 rounded-lg text-sm transition ${
+    active
+      ? "bg-slate-800 text-white"
+      : "text-slate-300 hover:bg-slate-800 hover:text-white"
+  }`;
+}
 
   return (
     <aside className="w-64 min-h-screen sticky top-0 bg-slate-900 text-white flex flex-col p-5">
@@ -48,6 +54,14 @@ export default function Sidebar({ onNavigate }: Props) {
               className={navClass("/admin/users")}
             >
               Manage Users
+            </Link>
+
+             <Link
+              to="/admin/invites"
+              onClick={onNavigate}
+              className={navClass("/admin/invites")}
+            >
+              Manage Invites
             </Link>
 
             <Link

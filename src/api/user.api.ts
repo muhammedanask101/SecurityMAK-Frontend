@@ -6,6 +6,7 @@ export interface AdminUser {
   role: string;
   clearanceLevel: string;
   organizationName: string;
+  enabled: boolean;
 }
 
 export const userApi = {
