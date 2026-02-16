@@ -77,10 +77,7 @@ export default function CaseDetailPage() {
   const isOwner = user?.email === selectedCase.ownerEmail;
   const isAdmin = user?.role === "ADMIN";
 
-  const editableStatuses = ["OPEN", "IN_PROGRESS"];
-  const canEdit =
-    (isOwner || isAdmin) &&
-    editableStatuses.includes(selectedCase.status);
+  const canEdit = isOwner || isAdmin;
 
   /* =============================
      Render

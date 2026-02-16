@@ -1,9 +1,11 @@
 import { useAuthStore } from "@/store/auth.store";
 import { useState } from "react";
 import { changePassword } from "@/api/user.api";
+import { disableAccount } from "@/api/user.api";
+import axios from "axios";
 
 export default function ProfilePage() {
-  const { user } = useAuthStore();
+  const { user, logout  } = useAuthStore();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -11,6 +13,9 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [disablePassword, setDisablePassword] = useState("");
+  const [disableLoading, setDisableLoading] = useState(false);
+  const [disableError, setDisableError] = useState<string | null>(null);
 
   const passwordsMismatch =
   confirmPassword.length > 0 &&
@@ -52,6 +57,32 @@ export default function ProfilePage() {
         setLoading(false);
         }
     }
+
+    async function handleDisableAccount(e: React.FormEvent) {
+    e.preventDefault();
+
+    setDisableError(null);
+
+    try {
+      setDisableLoading(true);
+
+      await disableAccount(disablePassword);
+      logout();
+
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      if (err.response?.status === 400) {
+        setDisableError("Invalid password.");
+      } else {
+        setDisableError("Failed to disable account.");
+      }
+    } else {
+      setDisableError("Unexpected error occurred.");
+    }
+  } finally {
+    setDisableLoading(false);
+  }
+}
 
   const clearanceStyles: Record<string, string> = {
     LOW: "bg-green-100 text-green-700",
@@ -187,6 +218,49 @@ export default function ProfilePage() {
         )}
         </form>
       </div>
+
+      {/* Danger Zone */}
+{user?.role !== "ADMIN" && (
+  <div className="bg-white rounded-2xl border border-red-200 shadow-sm p-6 space-y-6 max-w-xl">
+    <h2 className="text-lg font-semibold text-red-700">
+      Danger Zone
+    </h2>
+
+    <p className="text-sm text-slate-600">
+      Disabling your account will immediately revoke access.
+      An administrator will need to reactivate it.
+    </p>
+
+    <form onSubmit={handleDisableAccount} className="space-y-4 max-w-md">
+      <div>
+        <label className="block text-sm text-slate-600 mb-1">
+          Enter Password
+        </label>
+        <input
+          type="password"
+          required
+          value={disablePassword}
+          onChange={(e) => setDisablePassword(e.target.value)}
+          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={disableLoading}
+        className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+      >
+        {disableLoading ? "Disabling..." : "Disable Account"}
+      </button>
+
+      {disableError && (
+        <p className="text-sm text-red-600 mt-2">
+          {disableError}
+        </p>
+      )}
+    </form>
+  </div>
+)}
     </div>
   );
 }

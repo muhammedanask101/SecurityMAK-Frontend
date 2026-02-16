@@ -15,6 +15,11 @@ interface EventState {
     payload: CreateCaseEventRequest
   ) => Promise<void>;
   deleteEvent: (caseId: number, id: number) => Promise<void>;
+  updateEvent: (
+  caseId: number,
+  eventId: number,
+  payload: CreateCaseEventRequest
+) => Promise<void>;
 }
 
 export const useEventStore = create<EventState>(
@@ -36,6 +41,12 @@ export const useEventStore = create<EventState>(
 
     deleteEvent: async (caseId, id) => {
   await eventApi.delete(caseId, id);
+  const data = await eventApi.list(caseId);
+  set({ events: data });
+},
+
+updateEvent: async (caseId, eventId, payload) => {
+  await eventApi.update(caseId, eventId, payload);
   const data = await eventApi.list(caseId);
   set({ events: data });
 },

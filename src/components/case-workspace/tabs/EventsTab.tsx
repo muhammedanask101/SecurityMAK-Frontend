@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import { useEventStore } from "@/store/event.store";
+import { useCaseStore } from "@/store/case.store";
 
 interface Props {
   caseId: number;
@@ -17,16 +18,20 @@ const eventTypeStyles: Record<string, string> = {
 export default function EventsTab({ caseId }: Props) {
   const { user } = useAuthStore();
   const isAdmin = user?.role === "ADMIN";
+    const { selectedCase } = useCaseStore();
+    const isOwner = user?.email === selectedCase?.ownerEmail;
 
   const {
     events,
     loading,
     fetchEvents,
     createEvent,
+    updateEvent,
     deleteEvent,
   } = useEventStore();
 
   const [formOpen, setFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const [form, setForm] = useState({
     eventType: "NOTE",
@@ -39,23 +44,33 @@ export default function EventsTab({ caseId }: Props) {
     fetchEvents(caseId);
   }, [caseId, fetchEvents]);
 
-  async function handleCreate() {
+async function handleCreate() {
+  if (editingId) {
+    await updateEvent(caseId, editingId, {
+      eventType: form.eventType,
+      description: form.description,
+      eventDate: form.eventDate,
+      nextDate: form.nextDate || null,
+    });
+    setEditingId(null);
+  } else {
     await createEvent(caseId, {
       eventType: form.eventType,
       description: form.description,
       eventDate: form.eventDate,
       nextDate: form.nextDate || null,
     });
-
-    setForm({
-      eventType: "NOTE",
-      description: "",
-      eventDate: "",
-      nextDate: "",
-    });
-
-    setFormOpen(false);
   }
+
+  setForm({
+    eventType: "NOTE",
+    description: "",
+    eventDate: "",
+    nextDate: "",
+  });
+
+  setFormOpen(false);
+}
 
   async function handleDelete(id: number) {
     await deleteEvent(caseId, id);
@@ -68,13 +83,13 @@ export default function EventsTab({ caseId }: Props) {
         <h2 className="text-lg font-semibold text-slate-900">
           Case Timeline
         </h2>
-
+{(isAdmin || isOwner) &&
         <button
           onClick={() => setFormOpen((prev) => !prev)}
           className="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm hover:bg-slate-800 transition"
         >
           {formOpen ? "Cancel" : "Add Event"}
-        </button>
+        </button>}
       </div>
 
       {/* CREATE FORM */}
@@ -208,18 +223,34 @@ export default function EventsTab({ caseId }: Props) {
                 </div>
               </div>
 
-              {isAdmin && (
-                <div className="flex md:items-start">
-                  <button
-                    onClick={() =>
-                      handleDelete(event.id)
-                    }
-                    className="text-xs text-red-600 hover:text-red-700 transition"
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
+              {(isAdmin || isOwner) && (
+  <div className="flex gap-4">
+    <button
+      onClick={() => {
+        setForm({
+          eventType: event.eventType,
+          description: event.description || "",
+          eventDate: event.eventDate,
+          nextDate: event.nextDate || "",
+        });
+        setEditingId(event.id);
+        setFormOpen(true);
+      }}
+      className="text-xs text-blue-600 hover:text-blue-700 transition"
+    >
+      Edit
+    </button>
+
+    {isAdmin && (
+      <button
+        onClick={() => handleDelete(event.id)}
+        className="text-xs text-red-600 hover:text-red-700 transition"
+      >
+        Delete
+      </button>
+    )}
+  </div>
+)}
             </div>
           </div>
         ))}

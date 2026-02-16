@@ -45,7 +45,7 @@ export default function Sidebar({ onNavigate }: Props) {
           Profile
         </Link>
 
-        {user?.role?.includes("ADMIN") && (
+        {user?.role === "ADMIN" && (
           <>
             <div className="border-t border-slate-700 my-4" />
             <Link

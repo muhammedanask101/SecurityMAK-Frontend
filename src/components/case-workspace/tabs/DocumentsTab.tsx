@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDocumentStore } from "@/store/document.store";
+import { useAuthStore } from "@/store/auth.store";
 import DocumentGroup from "../documents/DocumentGroup";
+import type { SensitivityLevel } from "@/types/document";
+import { useCaseStore } from "@/store/case.store";
 
 interface Props {
   caseId: number;
 }
 
 export default function DocumentsTab({ caseId }: Props) {
-
   const {
     documents,
     fetchDocuments,
@@ -17,32 +19,58 @@ export default function DocumentsTab({ caseId }: Props) {
     error,
   } = useDocumentStore();
 
+  const { user } = useAuthStore();
+    const { selectedCase } = useCaseStore();
+    const isAdmin = user?.role === "ADMIN";
+    const isOwner = user?.email === selectedCase?.ownerEmail;
+
+  /* =========================================
+     SENSITIVITY LEVELS
+  ========================================= */
+  const levels: SensitivityLevel[] = [
+    "LOW",
+    "MEDIUM",
+    "HIGH",
+    "CRITICAL",
+  ];
+
+  
+
+  const allowedLevels = useMemo<SensitivityLevel[]>(() => {
+    if (!user) return ["LOW"];
+
+    if (user.role === "ADMIN") return levels;
+
+    const index = levels.indexOf(
+      user.clearanceLevel as SensitivityLevel
+    );
+
+    return levels.slice(0, index + 1);
+  }, [user]);
+
+  /* =========================================
+     STATE
+  ========================================= */
+  const [selectedSensitivity, setSelectedSensitivity] =
+    useState<SensitivityLevel>("LOW");
+
   const [uploading, setUploading] = useState(false);
 
+  /* Ensure selected level always valid */
+  useEffect(() => {
+    if (!allowedLevels.includes(selectedSensitivity)) {
+      setSelectedSensitivity(allowedLevels[0]);
+    }
+  }, [allowedLevels]);
+
+  /* Fetch documents */
   useEffect(() => {
     fetchDocuments(caseId);
   }, [caseId, fetchDocuments]);
 
-  const grouped = useMemo(() => {
-    const map: Record<string, typeof documents> = {};
-
-    documents.forEach((doc) => {
-      const groupKey = doc.documentGroupId ?? `single-${doc.id}`;
-
-      if (!map[groupKey]) {
-        map[groupKey] = [];
-      }
-
-      map[groupKey].push(doc);
-    });
-
-    Object.values(map).forEach((group) =>
-      group.sort((a, b) => b.version - a.version)
-    );
-
-    return map;
-  }, [documents]);
-
+  /* =========================================
+     UPLOAD HANDLER
+  ========================================= */
   async function handleUpload(
     e: React.ChangeEvent<HTMLInputElement>
   ) {
@@ -52,63 +80,130 @@ export default function DocumentsTab({ caseId }: Props) {
 
     try {
       setUploading(true);
-      await uploadDocument(caseId, file, "LOW");
-      e.target.value = ""; // reset input
+
+      await uploadDocument(
+        caseId,
+        file,
+        selectedSensitivity
+      );
+
+      e.target.value = "";
     } finally {
       setUploading(false);
     }
   }
 
+  /* =========================================
+     UI
+  ========================================= */
   return (
     <div className="space-y-8">
-      {/* HEADER */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-slate-900">
-          Documents
-        </h2>
 
-        <label className="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm cursor-pointer hover:bg-slate-800 transition">
-          {uploading ? "Uploading..." : "Upload Document"}
-          <input
-            type="file"
-            hidden
-            onChange={handleUpload}
-          />
-        </label>
+      {/* =====================================
+         HEADER
+      ====================================== */}
+      <div className="bg-white border rounded-2xl p-5 sm:p-6 shadow-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+
+          {/* Title */}
+          <div className="space-y-1">
+            <h2 className="text-lg font-semibold text-slate-900">
+              Documents
+            </h2>
+            <p className="text-xs text-slate-500">
+              Version-controlled case documents with clearance-based visibility.
+            </p>
+          </div>
+  { (isAdmin || isOwner) &&
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <select
+              value={selectedSensitivity}
+              onChange={(e) =>
+                setSelectedSensitivity(
+                  e.target.value as SensitivityLevel
+                )
+              }
+              className="border border-slate-300 bg-white rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+            >
+              {allowedLevels.map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </select> 
+
+          
+            <label className="inline-flex items-center justify-center bg-slate-900 text-white px-5 py-2.5 rounded-xl text-sm cursor-pointer hover:bg-slate-800 transition disabled:opacity-50 whitespace-nowrap">
+              {uploading ? "Uploading..." : "Upload Document"}
+              <input
+                type="file"
+                hidden
+                onChange={handleUpload}
+              />
+            </label>
+
+
+          </div>
+            }
+        </div>
       </div>
 
-      {/* ERROR */}
+      {/* =====================================
+         ERROR
+      ====================================== */}
       {error && (
-        <div className="text-sm text-red-600">
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
           {error}
         </div>
       )}
 
-      {/* LOADING */}
+      {/* =====================================
+         LOADING
+      ====================================== */}
       {loading && (
-        <div className="text-sm text-slate-500">
+        <div className="bg-white border rounded-2xl p-6 text-sm text-slate-500 animate-pulse">
           Loading documents...
         </div>
       )}
 
-      {/* EMPTY */}
+      {/* =====================================
+         EMPTY STATE
+      ====================================== */}
       {!loading && documents.length === 0 && (
-        <div className="bg-white border rounded-2xl p-8 text-center text-sm text-slate-500">
+        <div className="bg-white border rounded-2xl p-10 text-center text-sm text-slate-500 shadow-sm">
           No documents uploaded for this case.
         </div>
       )}
 
-      {/* GROUPED DOCUMENTS */}
+      {/* =====================================
+         DOCUMENT GROUPS
+      ====================================== */}
       <div className="space-y-6">
-        {Object.entries(grouped).map(([groupId, groupDocs]) => (
+        {documents.map((group) => (
           <DocumentGroup
-            key={groupId}
-            groupId={groupId}
-            documents={groupDocs}
+            key={group.documentGroupId}
+            groupId={group.documentGroupId}
+            documents={group.versions}
             caseId={caseId}
             onDelete={(id) =>
               deleteDocument(caseId, id)
             }
+            onUploadVersion={async (groupId, file) => {
+              const targetGroup = documents.find(
+                (g) => g.documentGroupId === groupId
+              );
+
+              const latestSensitivity =
+                targetGroup?.versions?.[0]?.sensitivityLevel ??
+                selectedSensitivity;
+
+              await uploadDocument(
+                caseId,
+                file,
+                latestSensitivity,
+                groupId
+              );
+            }}
           />
         ))}
       </div>

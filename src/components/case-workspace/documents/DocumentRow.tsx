@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/auth.store";
+import { documentApi } from "@/api/document.api";
+import type { SensitivityLevel } from "@/types/document";
 
 interface Props {
   id: number;
@@ -7,7 +9,7 @@ interface Props {
   fileName: string;
   fileType: string;
   fileSize: number;
-  sensitivityLevel: string;
+  sensitivityLevel: SensitivityLevel;
   uploadedBy: string;
   uploadedAt: string;
   version: number;
@@ -16,12 +18,6 @@ interface Props {
   onDelete?: (id: number) => void;
 }
 
-const sensitivityStyles: Record<string, string> = {
-  LOW: "bg-green-100 text-green-700",
-  MEDIUM: "bg-yellow-100 text-yellow-700",
-  HIGH: "bg-orange-100 text-orange-700",
-  CRITICAL: "bg-red-100 text-red-700",
-};
 
 function getFileIcon(type: string) {
   if (type.includes("pdf")) return "📕";
@@ -37,7 +33,6 @@ export default function DocumentRow({
   fileName,
   fileType,
   fileSize,
-  sensitivityLevel,
   uploadedBy,
   uploadedAt,
   version,
@@ -50,12 +45,60 @@ export default function DocumentRow({
 
   const [previewOpen, setPreviewOpen] = useState(false);
 
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const [previewLoading, setPreviewLoading] = useState(false);
+const [previewError, setPreviewError] = useState<string | null>(null);
+
+  
+useEffect(() => {
+  return () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+  };
+}, [previewUrl]);
+
+async function loadPreview() {
+  try {
+    setPreviewLoading(true);
+    setPreviewError(null);
+
+    const blob = await documentApi.download(caseId, id);
+    const url = window.URL.createObjectURL(blob);
+    setPreviewUrl(url);
+  } catch {
+  setPreviewError("Failed to load preview.");
+}
+   finally {
+    setPreviewLoading(false);
+  }
+}
+
   function formatSize(bytes: number) {
     if (!bytes) return "—";
     const kb = bytes / 1024;
     if (kb < 1024) return `${kb.toFixed(1)} KB`;
     return `${(kb / 1024).toFixed(2)} MB`;
   }
+
+ async function handleDownload() {
+  try {
+    const blob = await documentApi.download(caseId, id);
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Download failed", err);
+  }
+}
 
   return (
     <>
@@ -64,33 +107,26 @@ export default function DocumentRow({
         {/* LEFT SIDE */}
         <div className="space-y-2 min-w-0">
 
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-lg">
-              {getFileIcon(fileType)}
-            </span>
+          <div className="flex items-center gap-3 flex-wrap min-w-0">
 
-            <span className="text-sm font-medium text-slate-900 truncate max-w-[250px]">
-              {fileName}
-            </span>
+  <span className="text-lg shrink-0">
+    {getFileIcon(fileType)}
+  </span>
 
-            {!isLatest && (
-              <span className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded-md">
-                Superseded
-              </span>
-            )}
+  <span className="text-sm font-medium text-slate-900 truncate max-w-[240px]">
+    {fileName}
+  </span>
 
-            <span
-              className={`px-2 py-1 text-xs rounded-md font-medium ${
-                sensitivityStyles[sensitivityLevel]
-              }`}
-            >
-              {sensitivityLevel}
-            </span>
+  {!isLatest && (
+    <span className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded-md">
+      Superseded
+    </span>
+  )}
 
-            <span className="text-xs text-slate-500">
-              v{version}
-            </span>
-          </div>
+  <span className="text-xs text-slate-500">
+    v{version}
+  </span>
+</div>
 
           <div className="text-xs text-slate-600">
             {fileType} • {formatSize(fileSize)}
@@ -112,18 +148,22 @@ export default function DocumentRow({
         <div className="flex items-center gap-4 text-sm">
 
           <button
-            onClick={() => setPreviewOpen(true)}
-            className="text-slate-600 hover:text-slate-900 transition"
+            disabled={previewLoading}
+            onClick={() => {
+              setPreviewOpen(true);
+              loadPreview();
+            }}
+            className="text-slate-600 hover:text-slate-900 transition disabled:opacity-50"
           >
-            Preview
+            {previewLoading ? "Loading..." : "Preview"}
           </button>
 
-          <a
-            href={`/api/cases/${caseId}/documents/${id}/download`}
+          <button
+            onClick={handleDownload}
             className="text-slate-600 hover:text-slate-900 transition"
           >
             Download
-          </a>
+          </button>
 
           {isAdmin && onDelete && (
             <button
@@ -148,29 +188,54 @@ export default function DocumentRow({
                 {fileName}
               </h3>
               <button
-                onClick={() => setPreviewOpen(false)}
+                onClick={() => {
+  if (previewUrl) {
+    URL.revokeObjectURL(previewUrl);
+  }
+  setPreviewUrl(null);
+  setPreviewOpen(false);
+}}
                 className="text-slate-500 hover:text-slate-900"
               >
                 ✕
               </button>
             </div>
 
-            <div className="h-[70vh]">
-              {fileType.includes("pdf") ? (
-                <iframe
-                  src={`/api/cases/${caseId}/documents/${id}/download`}
-                  className="w-full h-full"
-                />
-              ) : fileType.includes("image") ? (
-                <img
-                  src={`/api/cases/${caseId}/documents/${id}/download`}
-                  className="max-h-full mx-auto"
-                />
-              ) : (
-                <div className="p-6 text-sm text-slate-500">
-                  Preview not supported for this file type.
-                </div>
-              )}
+            <div className="h-[70vh] flex items-center justify-center">
+              {previewLoading && (
+  <div className="text-sm text-slate-500 animate-pulse">
+    Loading preview...
+  </div>
+)}
+
+{previewError && (
+  <div className="text-sm text-red-600">
+    {previewError}
+  </div>
+)}
+
+{!previewLoading && !previewError && fileType.includes("pdf") && (
+  <iframe
+    src={previewUrl ?? ""}
+    className="w-full h-full"
+  />
+)}
+
+{!previewLoading && !previewError && fileType.includes("image") && (
+  <img
+    src={previewUrl ?? ""}
+    className="max-h-full mx-auto"
+  />
+)}
+
+{!previewLoading &&
+  !previewError &&
+  !fileType.includes("pdf") &&
+  !fileType.includes("image") && (
+    <div className="p-6 text-sm text-slate-500">
+      Preview not supported for this file type.
+    </div>
+)}
             </div>
 
           </div>

@@ -1,6 +1,13 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import api from "@/api/axios";
 import axios from "axios";
+import { useAuthStore } from "@/store/auth.store";
+import type { SensitivityLevel } from "@/types/document";
+import {
+  MAX_DOCUMENT_SIZE_BYTES,
+  MAX_DOCUMENT_SIZE_MB,
+  ALLOWED_DOCUMENT_TYPES,
+} from "@/document.constants";
 
 interface Props {
   caseId: number;
@@ -8,7 +15,12 @@ interface Props {
   onUploaded: () => void;
 }
 
-const sensitivityOptions = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
+const levels: SensitivityLevel[] = [
+  "LOW",
+  "MEDIUM",
+  "HIGH",
+  "CRITICAL",
+];
 
 export default function DocumentUploadModal({
   caseId,
@@ -16,39 +28,82 @@ export default function DocumentUploadModal({
   onUploaded,
 }: Props) {
   const [files, setFiles] = useState<File[]>([]);
-  const [sensitivity, setSensitivity] = useState("LOW");
+  const [sensitivity, setSensitivity] =
+    useState<SensitivityLevel>("LOW");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const MAX_SIZE = 20 * 1024 * 1024; // 20MB
+  const { user } = useAuthStore();
 
+  /* ===============================
+     CLEARANCE-BASED SENSITIVITY
+  =============================== */
+  const allowedLevels: SensitivityLevel[] =
+    user?.role === "ADMIN"
+      ? levels
+      : levels.slice(
+          0,
+          levels.indexOf(
+            (user?.clearanceLevel as SensitivityLevel) ??
+              "LOW"
+          ) + 1
+        );
+
+  useEffect(() => {
+    if (!allowedLevels.includes(sensitivity)) {
+      setSensitivity(allowedLevels[0]);
+    }
+  }, [allowedLevels, sensitivity]);
+
+  /* ===============================
+     FILE HANDLING
+  =============================== */
   function handleFiles(selected: FileList | null) {
     if (!selected) return;
 
     const validFiles: File[] = [];
 
     Array.from(selected).forEach((file) => {
-      if (file.size > MAX_SIZE) {
-        setError(`${file.name} exceeds 20MB limit`);
+      // Size validation
+      if (file.size > MAX_DOCUMENT_SIZE_BYTES) {
+        setError(
+          `${file.name} exceeds ${MAX_DOCUMENT_SIZE_MB}MB limit`
+        );
         return;
       }
+
+      // Type validation
+      if (!ALLOWED_DOCUMENT_TYPES.includes(file.type)) {
+        setError(
+          `${file.name} is not a supported file type`
+        );
+        return;
+      }
+
       validFiles.push(file);
     });
 
     setFiles((prev) => [...prev, ...validFiles]);
   }
 
-  function handleDrop(e: React.DragEvent<HTMLDivElement>) {
+  function handleDrop(
+    e: React.DragEvent<HTMLDivElement>
+  ) {
     e.preventDefault();
     handleFiles(e.dataTransfer.files);
   }
 
   function removeFile(index: number) {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
+    setFiles((prev) =>
+      prev.filter((_, i) => i !== index)
+    );
   }
 
+  /* ===============================
+     UPLOAD
+  =============================== */
   async function handleUpload() {
     if (files.length === 0) return;
 
@@ -59,14 +114,18 @@ export default function DocumentUploadModal({
       for (const file of files) {
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("sensitivityLevel", sensitivity);
+        formData.append(
+          "sensitivityLevel",
+          sensitivity
+        );
 
         await api.post(
           `/api/cases/${caseId}/documents`,
           formData,
           {
             headers: {
-              "Content-Type": "multipart/form-data",
+              "Content-Type":
+                "multipart/form-data",
             },
           }
         );
@@ -75,24 +134,28 @@ export default function DocumentUploadModal({
       onUploaded();
       onClose();
     } catch (err: unknown) {
-  if (axios.isAxiosError(err)) {
-    setError(
-      err.response?.data?.message ||
-      err.message ||
-      "Upload failed"
-    );
-  } else {
-    setError("Unexpected error occurred");
-  }
-} finally {
+      if (axios.isAxiosError(err)) {
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            "Upload failed"
+        );
+      } else {
+        setError(
+          "Unexpected error occurred"
+        );
+      }
+    } finally {
       setUploading(false);
     }
   }
 
+  /* ===============================
+     UI
+  =============================== */
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <div className="bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden">
-
         {/* HEADER */}
         <div className="px-6 py-4 border-b flex justify-between items-center">
           <h2 className="text-sm font-semibold text-slate-900">
@@ -108,26 +171,35 @@ export default function DocumentUploadModal({
 
         {/* BODY */}
         <div className="p-6 space-y-6">
-
           {/* Drag & Drop */}
           <div
-            onDragOver={(e) => e.preventDefault()}
+            onDragOver={(e) =>
+              e.preventDefault()
+            }
             onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() =>
+              fileInputRef.current?.click()
+            }
             className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center cursor-pointer hover:border-slate-400 transition"
           >
             <p className="text-sm text-slate-600">
-              Drag & drop files here or click to browse
+              Drag & drop files here or click to
+              browse
             </p>
             <p className="text-xs text-slate-400 mt-2">
-              Maximum file size: 20MB
+              Maximum file size:{" "}
+              {MAX_DOCUMENT_SIZE_MB}MB
             </p>
             <input
               type="file"
               multiple
               hidden
               ref={fileInputRef}
-              onChange={(e) => handleFiles(e.target.files)}
+              onChange={(e) =>
+                handleFiles(
+                  e.target.files
+                )
+              }
             />
           </div>
 
@@ -143,7 +215,9 @@ export default function DocumentUploadModal({
                     {file.name}
                   </span>
                   <button
-                    onClick={() => removeFile(index)}
+                    onClick={() =>
+                      removeFile(index)
+                    }
                     className="text-red-600 hover:text-red-800"
                   >
                     Remove
@@ -160,14 +234,24 @@ export default function DocumentUploadModal({
             </label>
             <select
               value={sensitivity}
-              onChange={(e) => setSensitivity(e.target.value)}
+              onChange={(e) =>
+                setSensitivity(
+                  e.target
+                    .value as SensitivityLevel
+                )
+              }
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
             >
-              {sensitivityOptions.map((level) => (
-                <option key={level} value={level}>
-                  {level}
-                </option>
-              ))}
+              {allowedLevels.map(
+                (level) => (
+                  <option
+                    key={level}
+                    value={level}
+                  >
+                    {level}
+                  </option>
+                )
+              )}
             </select>
           </div>
 
@@ -190,10 +274,15 @@ export default function DocumentUploadModal({
 
           <button
             onClick={handleUpload}
-            disabled={uploading || files.length === 0}
+            disabled={
+              uploading ||
+              files.length === 0
+            }
             className="px-5 py-2 text-sm bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition disabled:opacity-50"
           >
-            {uploading ? "Uploading..." : "Upload"}
+            {uploading
+              ? "Uploading..."
+              : "Upload"}
           </button>
         </div>
       </div>

@@ -15,6 +15,11 @@ interface PartyState {
     payload: CreatePartyRequest
   ) => Promise<void>;
   deleteParty: (caseId: number, id: number) => Promise<void>;
+  updateParty: (
+  caseId: number,
+  partyId: number,
+  payload: CreatePartyRequest
+) => Promise<void>;
 }
 
 export const usePartyStore = create<PartyState>(
@@ -39,5 +44,11 @@ export const usePartyStore = create<PartyState>(
       const data = await partyApi.list(caseId);
       set({ parties: data });
     },
+    updateParty: async (caseId, partyId, payload) => {
+  await partyApi.update(caseId, partyId, payload);
+  const data = await partyApi.list(caseId);
+  set({ parties: data });
+},
+
   })
 );

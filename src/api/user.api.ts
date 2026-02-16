@@ -30,6 +30,8 @@ export const userApi = {
     );
     return res.data;
   },
+
+  
 };
 
 export function changePassword(data: {
@@ -41,4 +43,8 @@ export function changePassword(data: {
 
 export function getProfile() {
   return api.get("/api/users/profile");
+}
+
+export function disableAccount(password: string) {
+  return api.post("/api/users/me/disable", { password });
 }

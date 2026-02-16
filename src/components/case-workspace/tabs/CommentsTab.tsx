@@ -8,7 +8,7 @@ interface Props {
 
 export default function CommentsTab({ caseId }: Props) {
   const { user } = useAuthStore();
-  const isAdmin = user?.role?.includes("ADMIN");
+  const isAdmin = user?.role === "ADMIN"
 
   const {
     comments,

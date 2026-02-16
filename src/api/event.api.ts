@@ -24,5 +24,17 @@ export const eventApi = {
 
   delete: async (caseId: number, eventId: number) => {
     await api.delete(`/api/cases/${caseId}/events/${eventId}`);
-  }
+  },
+
+  update: async (
+  caseId: number,
+  eventId: number,
+  payload: CreateCaseEventRequest
+): Promise<void> => {
+  await api.put(
+    `/api/cases/${caseId}/events/${eventId}`,
+    payload
+  );
+},
+
 };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import { usePartyStore } from "@/store/party.store";
+import { useCaseStore } from "@/store/case.store";
 
 interface Props {
   caseId: number;
@@ -19,17 +20,21 @@ const roleOrder = [
 
 export default function PartiesTab({ caseId }: Props) {
   const { user } = useAuthStore();
+  const { selectedCase } = useCaseStore();
   const isAdmin = user?.role === "ADMIN";
+  const isOwner = user?.email === selectedCase?.ownerEmail;
 
   const {
     parties,
     loading,
     fetchParties,
     createParty,
+    updateParty,   
     deleteParty,
   } = usePartyStore();
 
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -44,26 +49,32 @@ export default function PartiesTab({ caseId }: Props) {
     fetchParties(caseId);
   }, [caseId, fetchParties]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+async function handleSubmit(e: React.FormEvent) {
+  e.preventDefault();
 
+  if (editingId) {
+    await updateParty(caseId, editingId, form);
+    setEditingId(null);
+  } else {
     await createParty(caseId, form);
-
-    setForm({
-      name: "",
-      role: "PETITIONER",
-      advocateName: "",
-      contactInfo: "",
-      address: "",
-      notes: "",
-    });
-
-    setShowForm(false);
   }
+
+  setForm({
+    name: "",
+    role: "PETITIONER",
+    advocateName: "",
+    contactInfo: "",
+    address: "",
+    notes: "",
+  });
+
+  setShowForm(false);
+}
 
   async function handleDelete(id: number) {
     await deleteParty(caseId, id);
   }
+  
 
   const grouped = roleOrder
     .map((role) => ({
@@ -79,13 +90,17 @@ export default function PartiesTab({ caseId }: Props) {
         <h2 className="text-lg font-semibold text-slate-900">
           Parties
         </h2>
-
+{(isAdmin || isOwner ) &&
         <button
           onClick={() => setShowForm((prev) => !prev)}
           className="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm hover:bg-slate-800 transition"
         >
-          {showForm ? "Cancel" : "Add Party"}
-        </button>
+          {showForm
+  ? editingId
+    ? "Cancel Edit"
+    : "Cancel"
+  : "Add Party"}
+        </button>}
       </div>
 
       {/* FORM */}
@@ -206,7 +221,7 @@ export default function PartiesTab({ caseId }: Props) {
               type="submit"
               className="bg-slate-900 text-white px-5 py-2 rounded-xl text-sm hover:bg-slate-800 transition"
             >
-              Save Party
+              {editingId ? "Update Party" : "Save Party"}
             </button>
           </div>
         </form>
@@ -272,16 +287,36 @@ export default function PartiesTab({ caseId }: Props) {
                   </div>
 
 
-                  {isAdmin && (
-                    <button
-                      onClick={() =>
-                        handleDelete(party.id)
-                      }
-                      className="text-sm text-red-600 hover:text-red-800 transition"
-                    >
-                      Delete
-                    </button>
-                  )}
+                  {(isAdmin || isOwner) && (
+  <div className="flex gap-4">
+    <button
+      onClick={() => {
+        setForm({
+          name: party.name,
+          role: party.role,
+          advocateName: party.advocateName || "",
+          contactInfo: party.contactInfo || "",
+          address: party.address || "",
+          notes: party.notes || "",
+        });
+        setEditingId(party.id);
+        setShowForm(true);
+      }}
+      className="text-sm text-blue-600 hover:text-blue-800 transition"
+    >
+      Edit
+    </button>
+
+    {isAdmin && (
+      <button
+        onClick={() => handleDelete(party.id)}
+        className="text-sm text-red-600 hover:text-red-800 transition"
+      >
+        Delete
+      </button>
+    )}
+  </div>
+)}
                 </div>
               ))}
             </div>

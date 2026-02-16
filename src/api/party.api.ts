@@ -26,5 +26,16 @@ export const partyApi = {
 
   delete: async (caseId: number, partyId: number) => {
     await api.delete(`/api/cases/${caseId}/parties/${partyId}`);
-  }
+  },
+
+  update: async (
+  caseId: number,
+  partyId: number,
+  payload: CreatePartyRequest
+): Promise<void> => {
+  await api.put(
+    `/api/cases/${caseId}/parties/${partyId}`,
+    payload
+  );
+},
 };
