@@ -19,29 +19,114 @@ export default function ManageUsersPage() {
     CRITICAL: "bg-red-100 text-red-700",
   };
 
-  return (
-    <div className="p-8 max-w-6xl space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">
-          Manage Users
-        </h1>
-        <p className="text-sm text-slate-600 mt-2">
-          Tenant-scoped user administration
-        </p>
-      </div>
+return (
+  <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-8">
+    <div>
+      <h1 className="text-2xl font-semibold text-slate-900">
+        Manage Users
+      </h1>
+      <p className="text-sm text-slate-600 mt-2">
+        Tenant-scoped user administration
+      </p>
+    </div>
 
-      {error && (
-        <div className="text-sm text-red-600">{error}</div>
-      )}
+    {error && (
+      <div className="text-sm text-red-600">{error}</div>
+    )}
 
-      <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
+    {/* Mobile Card View */}
+    <div className="md:hidden space-y-4">
+      {users.map((u) => {
+        const isSelf = u.email === currentUser?.email;
+
+        return (
+          <div
+            key={u.id}
+            className="bg-white border rounded-2xl p-4 space-y-4 shadow-sm"
+          >
+            <div className="flex justify-between items-start">
+              <div className="text-sm font-medium text-slate-800">
+                {u.email}
+                {isSelf && (
+                  <span className="ml-2 text-xs text-slate-400">
+                    (You)
+                  </span>
+                )}
+              </div>
+
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-medium tracking-wide ${
+                  u.enabled
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                    : "bg-red-50 text-red-700 border border-red-200"
+                }`}
+              >
+                {u.enabled ? "ACTIVE" : "BANNED"}
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              <select
+                disabled={loading || isSelf || u.role === "ADMIN"}
+                value={u.role}
+                onChange={(e) => updateRole(u.id, e.target.value)}
+                className="w-full border rounded-md px-3 py-2 text-sm"
+              >
+                <option value="USER">USER</option>
+                <option value="ADMIN">ADMIN</option>
+              </select>
+
+              <select
+                disabled={loading || isSelf || u.role === "ADMIN"}
+                value={u.clearanceLevel}
+                onChange={(e) =>
+                  updateClearance(u.id, e.target.value)
+                }
+                className={`w-full border rounded-md px-3 py-2 text-sm ${
+                  clearanceStyles[u.clearanceLevel]
+                }`}
+              >
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+                <option value="CRITICAL">CRITICAL</option>
+              </select>
+            </div>
+
+            {!isSelf && u.role !== "ADMIN" && (
+              u.enabled ? (
+                <button
+                  onClick={() => banUser(u.id)}
+                  disabled={loading}
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition disabled:opacity-50"
+                >
+                  Ban User
+                </button>
+              ) : (
+                <button
+                  onClick={() => unbanUser(u.id)}
+                  disabled={loading}
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 transition disabled:opacity-50"
+                >
+                  Restore Access
+                </button>
+              )
+            )}
+          </div>
+        );
+      })}
+    </div>
+
+    {/* Desktop Table */}
+    <div className="hidden md:block bg-white border rounded-2xl shadow-sm overflow-hidden">
+      <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-slate-600">
             <tr>
-              <th className="text-left px-6 py-3">Email</th>
-              <th className="text-left px-6 py-3">Role</th>
-              <th className="text-left px-6 py-3">Clearance</th>
-              <th className="text-left px-6 py-3">Status</th>
+              <th className="text-left px-4 md:px-6 py-3">Email</th>
+              <th className="text-left px-4 md:px-6 py-3">Role</th>
+              <th className="text-left px-4 md:px-6 py-3">Clearance</th>
+              <th className="text-left px-4 md:px-6 py-3">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -50,7 +135,7 @@ export default function ManageUsersPage() {
 
               return (
                 <tr key={u.id} className="border-t">
-                  <td className="px-6 py-4 text-slate-800">
+                  <td className="px-4 md:px-6 py-3 md:py-4 text-slate-800">
                     {u.email}
                     {isSelf && (
                       <span className="ml-2 text-xs text-slate-400">
@@ -59,7 +144,7 @@ export default function ManageUsersPage() {
                     )}
                   </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-4 md:px-6 py-3 md:py-4">
                     <select
                       disabled={loading || isSelf || u.role === "ADMIN"}
                       value={u.role}
@@ -73,15 +158,12 @@ export default function ManageUsersPage() {
                     </select>
                   </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-4 md:px-6 py-3 md:py-4">
                     <select
                       disabled={loading || isSelf || u.role === "ADMIN"}
                       value={u.clearanceLevel}
                       onChange={(e) =>
-                        updateClearance(
-                          u.id,
-                          e.target.value
-                        )
+                        updateClearance(u.id, e.target.value)
                       }
                       className={`border rounded-md px-3 py-2 text-sm ${
                         clearanceStyles[u.clearanceLevel]
@@ -90,47 +172,43 @@ export default function ManageUsersPage() {
                       <option value="LOW">LOW</option>
                       <option value="MEDIUM">MEDIUM</option>
                       <option value="HIGH">HIGH</option>
-                      <option value="CRITICAL">
-                        CRITICAL
-                      </option>
+                      <option value="CRITICAL">CRITICAL</option>
                     </select>
                   </td>
 
-                  <td className="px-6 py-4">
-  <div className="flex items-center justify-between gap-4">
+                  <td className="px-4 md:px-6 py-3 md:py-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium tracking-wide ${
+                          u.enabled
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-red-50 text-red-700 border border-red-200"
+                        }`}
+                      >
+                        {u.enabled ? "ACTIVE" : "BANNED"}
+                      </span>
 
-    {/* Status Badge */}
-    <span
-  className={`px-3 py-1 rounded-full text-xs font-medium tracking-wide ${
-    u.enabled
-      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-      : "bg-red-50 text-red-700 border border-red-200"
-  }`}
->
-  {u.enabled ? "ACTIVE" : "BANNED"}
-</span>
-    {/* Ban / Unban Button */}
-    {!isSelf && u.role !== "ADMIN" && (
-      u.enabled ? (
-  <button
-    onClick={() => banUser(u.id)}
-    disabled={loading}
-    className="px-3 py-1.5 text-xs rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition disabled:opacity-50"
-  >
-    Ban User
-  </button>
-) : (
-  <button
-    onClick={() => unbanUser(u.id)}
-    disabled={loading}
-    className="px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 transition disabled:opacity-50"
-  >
-    Restore Access
-  </button>
-)
-    )}
-  </div>
-</td>
+                      {!isSelf && u.role !== "ADMIN" && (
+                        u.enabled ? (
+                          <button
+                            onClick={() => banUser(u.id)}
+                            disabled={loading}
+                            className="px-3 py-1.5 text-xs rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition disabled:opacity-50"
+                          >
+                            Ban User
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => unbanUser(u.id)}
+                            disabled={loading}
+                            className="px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 transition disabled:opacity-50"
+                          >
+                            Restore Access
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </td>
                 </tr>
               );
             })}
@@ -138,5 +216,7 @@ export default function ManageUsersPage() {
         </table>
       </div>
     </div>
-  );
+  </div>
+);
+
 }

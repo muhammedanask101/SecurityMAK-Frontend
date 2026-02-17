@@ -19,7 +19,7 @@ export default function Topbar({ onMenuClick }: Props) {
           ☰
         </button>
 
-        <div className="text-sm text-slate-600">
+        <div className="hidden md:block text-sm text-slate-600">
           {user?.organizationName
             ? `Organization: ${user.organizationName}`
             : "No organization selected"}
@@ -27,7 +27,7 @@ export default function Topbar({ onMenuClick }: Props) {
       </div>
 
       <div className="flex items-center gap-6">
-        <span className="text-sm text-slate-700">
+        <span className="hidden md:block text-sm text-slate-700">
           {user?.email}
         </span>
 

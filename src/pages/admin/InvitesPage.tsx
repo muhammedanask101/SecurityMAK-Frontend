@@ -96,131 +96,224 @@ useEffect(() => {
 }, [statusFilter]);
 
 
-  return (
-    <div className="p-6">
-      <h1 className="text-xl font-semibold mb-4">Invites</h1>
+return (
+  <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-8">
+    <div>
+      <h1 className="text-2xl font-semibold text-slate-900">
+        Invites
+      </h1>
+      <p className="text-sm text-slate-600 mt-2">
+        Tenant-scoped invitation management
+      </p>
+    </div>
 
-      <div className="bg-white p-6 rounded-xl shadow mb-6">
-  <h2 className="text-lg font-semibold mb-4">Create Invite</h2>
+    {/* Create Invite */}
+    <div className="bg-white border rounded-2xl p-6 shadow-sm space-y-6">
+      <h2 className="text-lg font-semibold text-slate-900">
+        Create Invite
+      </h2>
 
-  <div className="flex gap-4">
-    <input
-      type="email"
-      placeholder="Email"
-      value={email}
-      onChange={(e) => setEmail(e.target.value)}
-      className="border p-2 rounded w-64"
-    />
+      <div className="flex flex-col md:flex-row gap-4">
+        <input
+          type="email"
+          placeholder="Email address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="border rounded-md px-3 py-2 text-sm w-full md:w-72"
+        />
 
-    <select
-      value={role}
-      onChange={(e) => setRole(e.target.value)}
-      className="border p-2 rounded"
-    >
-      <option value="USER">USER</option>
-      <option value="ADMIN">ADMIN</option>
-    </select>
+        <select
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          className="border rounded-md px-3 py-2 text-sm w-full md:w-40"
+        >
+          <option value="USER">USER</option>
+          <option value="ADMIN">ADMIN</option>
+        </select>
 
-    <select
-      value={clearance}
-      onChange={(e) => setClearance(e.target.value)}
-      className="border p-2 rounded"
-    >
-      <option value="LOW">LOW</option>
-      <option value="MEDIUM">MEDIUM</option>
-      <option value="HIGH">HIGH</option>
-      <option value="CRITICAL">CRITICAL</option>
-    </select>
+        <select
+          value={clearance}
+          onChange={(e) => setClearance(e.target.value)}
+          className="border rounded-md px-3 py-2 text-sm w-full md:w-40"
+        >
+          <option value="LOW">LOW</option>
+          <option value="MEDIUM">MEDIUM</option>
+          <option value="HIGH">HIGH</option>
+          <option value="CRITICAL">CRITICAL</option>
+        </select>
 
-    <button
-      onClick={create}
-      className="bg-blue-600 text-white px-4 rounded"
-    >
-      Create
-    </button>
-  </div>
-</div>
+        <button
+          onClick={create}
+          className="px-4 py-2 bg-slate-900 text-white text-sm rounded-md hover:bg-slate-800 w-full md:w-auto"
+        >
+          Create Invite
+        </button>
+      </div>
+    </div>
 
+    {/* Filter */}
+    <div className="flex flex-col md:flex-row md:items-center gap-4">
       <select
-        className="border p-2 mb-4"
+        className="border rounded-md px-3 py-2 text-sm w-full md:w-56"
         onChange={(e) =>
           setStatusFilter(
             e.target.value as InviteStatus
           )
         }
       >
-        <option value="">All</option>
+        <option value="">All Statuses</option>
         <option value="PENDING">Pending</option>
         <option value="REGISTERED">Registered</option>
         <option value="APPROVED">Approved</option>
         <option value="REJECTED">Rejected</option>
         <option value="TERMINATED">Terminated</option>
       </select>
+    </div>
 
-      <div className="bg-white shadow rounded-lg">
-        {invites.map((invite) => (
-          <div
-            key={invite.id}
-            className="flex justify-between border-b p-4"
+    {/* Invite List */}
+
+{/* Mobile Cards */}
+<div className="md:hidden space-y-4">
+  {invites.map((invite) => (
+    <div
+      key={invite.id}
+      className="bg-white border rounded-2xl p-4 shadow-sm space-y-3"
+    >
+      <div className="font-medium text-slate-800 break-all">
+        {invite.email}
+      </div>
+
+      <div className="text-xs text-slate-500 uppercase tracking-wide">
+        {invite.status}
+      </div>
+
+      <div className="text-xs text-slate-400 break-all">
+        Token: {invite.token}
+      </div>
+
+      <button
+        onClick={() => handleCopy(invite.id, invite.token)}
+        className="text-xs text-blue-600 hover:underline"
+      >
+        {copiedId === invite.id
+          ? "Copied!"
+          : "Copy Invite Link"}
+      </button>
+
+      <div className="flex flex-wrap gap-2 pt-2">
+        {invite.status === "REGISTERED" && (
+          <>
+            <button
+              onClick={() => handleApprove(invite.id)}
+              className="flex-1 px-3 py-2 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 text-xs"
+            >
+              Approve
+            </button>
+
+            <button
+              onClick={() => handleReject(invite.id)}
+              className="flex-1 px-3 py-2 rounded-lg bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 text-xs"
+            >
+              Reject
+            </button>
+          </>
+        )}
+
+        {invite.status === "PENDING" && (
+          <button
+            onClick={() => handleTerminate(invite.id)}
+            className="w-full px-3 py-2 rounded-lg bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 text-xs"
           >
-            <div>
-  <div className="font-medium">{invite.email}</div>
+            Terminate
+          </button>
+        )}
 
-  <div className="text-sm text-gray-500">
-    {invite.status}
-  </div>
-
-  <div className="text-xs text-gray-400 break-all mt-1">
-    Token: {invite.token}
-  </div>
-
-<button
-  onClick={() => handleCopy(invite.id, invite.token)}
-  className="text-blue-600 text-xs hover:underline mt-1"
->
-  {copiedId === invite.id ? "Copied!" : "Copy Invite Link"}
-</button>
-</div>
-
-            <div className="flex gap-2">
-             {invite.status === "REGISTERED" && (
-  <>
-    <button
-      onClick={() => handleApprove(invite.id)}
-      className="text-green-600 hover:underline"
-    >
-      Approve
-    </button>
-    <button
-      onClick={() => handleReject(invite.id)}
-      className="text-red-600 hover:underline"
-    >
-      Reject
-    </button>
-  </>
-)}
-
-              {invite.status === "PENDING" && (
-  <button
-    onClick={() => handleTerminate(invite.id)}
-    className="text-red-600 hover:underline"
-  >
-    Terminate
-  </button>
-)}
-
-{invite.status === "TERMINATED" && (
-  <button
-    onClick={() => handleDelete(invite.id)}
-    className="text-gray-600 hover:underline"
-  >
-    Delete
-  </button>
-)}
-            </div>
-          </div>
-        ))}
+        {invite.status === "TERMINATED" && (
+          <button
+            onClick={() => handleDelete(invite.id)}
+            className="w-full px-3 py-2 rounded-lg bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 text-xs"
+          >
+            Delete
+          </button>
+        )}
       </div>
     </div>
-  );
+  ))}
+</div>
+
+{/* Desktop Joined List */}
+<div className="hidden md:block bg-white border rounded-2xl shadow-sm divide-y">
+  {invites.map((invite) => (
+    <div
+      key={invite.id}
+      className="p-6 flex items-center justify-between gap-6"
+    >
+      <div className="space-y-2">
+        <div className="font-medium text-slate-800">
+          {invite.email}
+        </div>
+
+        <div className="text-xs text-slate-500 uppercase tracking-wide">
+          {invite.status}
+        </div>
+
+        <div className="text-xs text-slate-400 break-all">
+          Token: {invite.token}
+        </div>
+
+        <button
+          onClick={() =>
+            handleCopy(invite.id, invite.token)
+          }
+          className="text-xs text-blue-600 hover:underline"
+        >
+          {copiedId === invite.id
+            ? "Copied!"
+            : "Copy Invite Link"}
+        </button>
+      </div>
+
+      <div className="flex flex-wrap gap-3 text-xs font-medium">
+        {invite.status === "REGISTERED" && (
+          <>
+            <button
+              onClick={() => handleApprove(invite.id)}
+              className="px-3 py-1.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
+            >
+              Approve
+            </button>
+
+            <button
+              onClick={() => handleReject(invite.id)}
+              className="px-3 py-1.5 rounded-md bg-red-50 text-red-700 border border-red-200 hover:bg-red-100"
+            >
+              Reject
+            </button>
+          </>
+        )}
+
+        {invite.status === "PENDING" && (
+          <button
+            onClick={() => handleTerminate(invite.id)}
+            className="px-3 py-1.5 rounded-md bg-red-50 text-red-700 border border-red-200 hover:bg-red-100"
+          >
+            Terminate
+          </button>
+        )}
+
+        {invite.status === "TERMINATED" && (
+          <button
+            onClick={() => handleDelete(invite.id)}
+            className="px-3 py-1.5 rounded-md bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200"
+          >
+            Delete
+          </button>
+        )}
+      </div>
+    </div>
+  ))}
+</div>
+</div>
+);
+
 }

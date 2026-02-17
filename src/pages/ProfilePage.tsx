@@ -92,7 +92,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8 space-y-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-8 pt-3 pb-8 md:pt-8 md:pb-8 space-y-8">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">
