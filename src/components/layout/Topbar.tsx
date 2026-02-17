@@ -14,7 +14,7 @@ export default function Topbar({ onMenuClick }: Props) {
         {/* Mobile Menu Button */}
         <button
   onClick={onMenuClick}
-  className="lg:hidden text-slate-600 text-xl px-3 rounded-xl hover:bg-slate-100 transition"
+  className="lg:hidden text-slate-600 text-xl px-3 py-2 rounded-xl hover:bg-slate-100 transition"
 >
   ☰
 </button>
