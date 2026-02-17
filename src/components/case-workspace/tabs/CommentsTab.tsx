@@ -91,11 +91,41 @@ return (
     </form>
 
     {/* Loading */}
-    {loading && (
-      <div className="text-sm text-slate-500 px-1 sm:px-0">
-        Loading comments...
+   {/* Loading Skeleton */}
+{loading && (
+  <div className="space-y-4">
+
+    {/* Create Comment Skeleton */}
+    <div className="bg-white border rounded-2xl p-4 sm:p-6 shadow-sm space-y-4 animate-pulse">
+      <div className="h-20 bg-slate-200 rounded-xl" />
+      <div className="flex gap-4">
+        <div className="h-9 w-28 bg-slate-200 rounded-xl" />
+        <div className="h-9 w-32 bg-slate-200 rounded-xl ml-auto" />
       </div>
-    )}
+    </div>
+
+    {/* Comment Card Skeletons */}
+    {[...Array(3)].map((_, i) => (
+      <div
+        key={i}
+        className="bg-white border rounded-2xl p-4 sm:p-6 shadow-sm space-y-3 animate-pulse"
+      >
+        <div className="flex justify-between">
+          <div className="h-4 w-40 bg-slate-200 rounded" />
+          <div className="h-4 w-16 bg-slate-200 rounded" />
+        </div>
+
+        <div className="space-y-2">
+          <div className="h-3 w-full bg-slate-200 rounded" />
+          <div className="h-3 w-5/6 bg-slate-200 rounded" />
+          <div className="h-3 w-2/3 bg-slate-200 rounded" />
+        </div>
+
+        <div className="h-3 w-32 bg-slate-200 rounded" />
+      </div>
+    ))}
+  </div>
+)}
 
     {/* Empty State */}
     {!loading && comments.length === 0 && (
@@ -105,6 +135,7 @@ return (
     )}
 
     {/* Comment List */}
+    {!loading && comments.length > 0 && (
     <div className="space-y-4">
       {comments.map((comment) => (
         <div
@@ -147,6 +178,7 @@ return (
         </div>
       ))}
     </div>
+    )}
   </div>
 );
 }

@@ -177,6 +177,65 @@ return (
       </div>
     </div>
 
+    {loading && (
+  <>
+    {/* ================= MOBILE SKELETON ================= */}
+    <div className="md:hidden bg-white border border-slate-200 rounded-2xl shadow-sm divide-y animate-pulse opacity-80">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="p-4 space-y-3">
+
+          <div className="flex justify-between items-start">
+            <div className="h-3 w-28 bg-slate-200 rounded" />
+            <div className="h-5 w-20 bg-slate-200 rounded-md" />
+          </div>
+
+          <div className="h-4 w-40 bg-slate-200 rounded" />
+
+          <div className="h-3 w-24 bg-slate-200 rounded" />
+
+          <div className="h-3 w-20 bg-slate-200 rounded" />
+        </div>
+      ))}
+    </div>
+
+    {/* ================= DESKTOP SKELETON ================= */}
+    <div className="hidden md:block bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden animate-pulse opacity-80">
+      <table className="min-w-full text-sm">
+        <thead className="bg-slate-50">
+          <tr>
+            <th className="px-6 py-3 text-left">Time</th>
+            <th className="px-6 py-3 text-left">Actor</th>
+            <th className="px-6 py-3 text-left">Action</th>
+            <th className="px-6 py-3 text-left">Target</th>
+            <th className="px-6 py-3 text-left">Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <tr key={i} className="border-t">
+              <td className="px-6 py-4">
+                <div className="h-4 w-32 bg-slate-200 rounded" />
+              </td>
+              <td className="px-6 py-4">
+                <div className="h-4 w-40 bg-slate-200 rounded" />
+              </td>
+              <td className="px-6 py-4">
+                <div className="h-5 w-24 bg-slate-200 rounded-md" />
+              </td>
+              <td className="px-6 py-4">
+                <div className="h-4 w-28 bg-slate-200 rounded" />
+              </td>
+              <td className="px-6 py-4">
+                <div className="h-4 w-24 bg-slate-200 rounded" />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </>
+)}
+
   {/* Mobile List */}
 <div className="md:hidden bg-white border border-slate-200 rounded-2xl shadow-sm divide-y">
   {logs.map((log) => (
@@ -245,11 +304,6 @@ return (
     </div>
   ))}
 
-  {loading && (
-    <div className="p-4 text-sm text-slate-500">
-      Loading audit logs...
-    </div>
-  )}
 
   {!loading && logs.length === 0 && (
     <div className="p-4 text-sm text-slate-500">

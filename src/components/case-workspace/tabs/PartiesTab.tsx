@@ -245,17 +245,49 @@ async function handleSubmit(e: React.FormEvent) {
 
       {/* LIST */}
       {loading && (
-        <div className="text-sm text-slate-500">
-          Loading parties...
+  <div className="space-y-6 animate-pulse opacity-80">
+    {Array.from({ length: 2 }).map((_, groupIndex) => (
+      <div
+        key={groupIndex}
+        className="bg-white border rounded-2xl shadow-sm"
+      >
+        {/* Group Header */}
+        <div className="px-6 py-4 border-b">
+          <div className="h-4 w-32 bg-slate-200 rounded" />
         </div>
-      )}
+
+        {/* Party Rows */}
+        <div className="divide-y">
+          {Array.from({ length: 2 }).map((_, rowIndex) => (
+            <div
+              key={rowIndex}
+              className="p-6 flex flex-col md:flex-row md:justify-between gap-4"
+            >
+              <div className="space-y-3 flex-1">
+                <div className="h-5 w-40 bg-slate-200 rounded" />
+                <div className="h-4 w-56 bg-slate-200 rounded" />
+                <div className="h-4 w-48 bg-slate-200 rounded" />
+                <div className="h-4 w-64 bg-slate-200 rounded" />
+              </div>
+
+              <div className="flex gap-4">
+                <div className="h-4 w-10 bg-slate-200 rounded" />
+                <div className="h-4 w-14 bg-slate-200 rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+)}
 
       {!loading && grouped.length === 0 && (
         <div className="bg-white border rounded-2xl p-6 text-sm text-slate-500">
           No parties added yet.
         </div>
       )}
-
+{!loading && grouped.length > 0 && (
       <div className="space-y-6">
         {grouped.map((group) => (
           <div
@@ -339,6 +371,7 @@ async function handleSubmit(e: React.FormEvent) {
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }

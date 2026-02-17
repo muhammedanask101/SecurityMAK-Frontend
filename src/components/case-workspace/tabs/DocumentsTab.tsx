@@ -160,11 +160,45 @@ export default function DocumentsTab({ caseId }: Props) {
       {/* =====================================
          LOADING
       ====================================== */}
-      {loading && (
-        <div className="bg-white border rounded-2xl p-6 text-sm text-slate-500 animate-pulse">
-          Loading documents...
+     {loading && (
+  <div className="space-y-6 animate-pulse">
+    {Array.from({ length: 2 }).map((_, groupIndex) => (
+      <div
+        key={groupIndex}
+        className="bg-white border rounded-2xl shadow-sm overflow-hidden"
+      >
+        {/* Group Header */}
+        <div className="px-6 py-4 border-b bg-slate-50 flex justify-between items-center">
+          <div className="h-4 w-40 bg-slate-200 rounded" />
+          <div className="h-4 w-20 bg-slate-200 rounded" />
         </div>
-      )}
+
+        {/* Version Rows */}
+        <div className="divide-y">
+          {Array.from({ length: 2 }).map((_, versionIndex) => (
+            <div
+              key={versionIndex}
+              className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+            >
+              {/* Left Info */}
+              <div className="space-y-3 flex-1">
+                <div className="h-4 w-56 bg-slate-200 rounded" />
+                <div className="h-3 w-40 bg-slate-200 rounded" />
+                <div className="h-3 w-64 bg-slate-200 rounded" />
+              </div>
+
+              {/* Right Actions */}
+              <div className="flex gap-4">
+                <div className="h-4 w-16 bg-slate-200 rounded" />
+                <div className="h-4 w-12 bg-slate-200 rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+)}
 
       {/* =====================================
          EMPTY STATE
@@ -178,6 +212,7 @@ export default function DocumentsTab({ caseId }: Props) {
       {/* =====================================
          DOCUMENT GROUPS
       ====================================== */}
+      {!loading && documents.length > 0 && (
       <div className="space-y-6">
         {documents.map((group) => (
           <DocumentGroup
@@ -207,6 +242,7 @@ export default function DocumentsTab({ caseId }: Props) {
           />
         ))}
       </div>
+      )}
     </div>
   );
 }

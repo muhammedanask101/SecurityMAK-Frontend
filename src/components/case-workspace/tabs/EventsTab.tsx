@@ -165,10 +165,42 @@ async function handleCreate() {
 
       {/* LOADING */}
       {loading && (
-        <div className="text-sm text-slate-500">
-          Loading timeline...
+  <div className="space-y-6 animate-pulse">
+    {Array.from({ length: 3 }).map((_, index) => (
+      <div
+        key={index}
+        className="bg-white border rounded-2xl p-6 shadow-sm"
+      >
+        <div className="flex flex-col md:flex-row md:justify-between gap-6">
+
+          {/* Left Content */}
+          <div className="space-y-4 flex-1">
+            {/* Event Type Badge */}
+            <div className="h-5 w-24 bg-slate-200 rounded-md" />
+
+            {/* Description Lines */}
+            <div className="h-4 w-full bg-slate-200 rounded" />
+            <div className="h-4 w-5/6 bg-slate-200 rounded" />
+
+            {/* Dates */}
+            <div className="h-3 w-40 bg-slate-200 rounded" />
+            <div className="h-3 w-48 bg-slate-200 rounded" />
+
+            {/* Meta */}
+            <div className="h-3 w-56 bg-slate-200 rounded" />
+          </div>
+
+          {/* Right Action Buttons */}
+          <div className="flex gap-4">
+            <div className="h-4 w-10 bg-slate-200 rounded" />
+            <div className="h-4 w-14 bg-slate-200 rounded" />
+          </div>
+
         </div>
-      )}
+      </div>
+    ))}
+  </div>
+)}
 
       {/* EMPTY STATE */}
       {!loading && events.length === 0 && (
@@ -178,6 +210,8 @@ async function handleCreate() {
       )}
 
       {/* TIMELINE */}
+      
+{!loading && events.length > 0 && (
       <div className="space-y-6">
         {events.map((event) => (
           <div
@@ -255,6 +289,7 @@ async function handleCreate() {
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }

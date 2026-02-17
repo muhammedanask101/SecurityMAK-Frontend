@@ -9,6 +9,7 @@ export default function InvitesPage() {
   const [email, setEmail] = useState("");
     const [role, setRole] = useState("USER");
     const [clearance, setClearance] = useState("LOW");
+    const [loading, setLoading] = useState(false);
     
 
     const create = async () => {
@@ -28,11 +29,15 @@ export default function InvitesPage() {
   fetchInvites(); 
 };
 
-  const fetchInvites = async () => {
+ const fetchInvites = async () => {
+  try {
+    setLoading(true);
     const res = await inviteApi.getInvites(statusFilter);
     setInvites(res.data.content);
-  };
-
+  } finally {
+    setLoading(false);
+  }
+};
   const loadInvites = async () => {
   await fetchInvites(); // or your existing loader
 };
@@ -170,9 +175,53 @@ return (
       </select>
     </div>
 
-    {/* Invite List */}
+    {/* ================= LOADING SKELETON ================= */}
+{loading && (
+  <>
+    {/* -------- Mobile Skeleton -------- */}
+    <div className="md:hidden space-y-4 animate-pulse opacity-80">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div
+          key={i}
+          className="bg-white border rounded-2xl p-4 shadow-sm space-y-3"
+        >
+          <div className="h-4 w-3/4 bg-slate-200 rounded" />
+          <div className="h-3 w-24 bg-slate-200 rounded" />
+          <div className="h-3 w-full bg-slate-200 rounded" />
+          <div className="h-3 w-32 bg-slate-200 rounded" />
+
+          <div className="flex gap-2 pt-2">
+            <div className="flex-1 h-8 bg-slate-200 rounded-lg" />
+            <div className="flex-1 h-8 bg-slate-200 rounded-lg" />
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* -------- Desktop Skeleton -------- */}
+    <div className="hidden md:block bg-white border rounded-2xl shadow-sm divide-y animate-pulse opacity-80">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="p-6 flex items-center justify-between gap-6">
+          <div className="space-y-2 flex-1">
+            <div className="h-4 w-1/3 bg-slate-200 rounded" />
+            <div className="h-3 w-20 bg-slate-200 rounded" />
+            <div className="h-3 w-2/3 bg-slate-200 rounded" />
+            <div className="h-3 w-28 bg-slate-200 rounded" />
+          </div>
+
+          <div className="flex gap-3">
+            <div className="h-8 w-20 bg-slate-200 rounded-md" />
+            <div className="h-8 w-20 bg-slate-200 rounded-md" />
+          </div>
+        </div>
+      ))}
+    </div>
+  </>
+)}
 
 {/* Mobile Cards */}
+
+{!loading && (   <>
 <div className="md:hidden space-y-4">
   {invites.map((invite) => (
     <div
@@ -313,6 +362,8 @@ return (
     </div>
   ))}
 </div>
+
+</> )}
 </div>
 );
 

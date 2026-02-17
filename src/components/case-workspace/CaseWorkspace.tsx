@@ -24,12 +24,50 @@ export default function CaseWorkspace({ caseId }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
 
   if (loading || !selectedCase) {
-    return (
-      <div className="bg-white border rounded-2xl p-8 shadow-sm text-sm text-slate-500">
-        Loading case workspace...
+  return (
+    <div className="space-y-6">
+
+      <div className="bg-white border rounded-2xl shadow-sm overflow-hidden animate-pulse opacity-80">
+
+        {/* Fake Tabs */}
+        <div className="hidden sm:flex border-b px-4 sm:px-6 py-3 gap-6">
+          <div className="h-4 w-20 bg-slate-200 rounded" />
+          <div className="h-4 w-16 bg-slate-200 rounded" />
+          <div className="h-4 w-16 bg-slate-200 rounded" />
+          <div className="h-4 w-24 bg-slate-200 rounded" />
+          <div className="h-4 w-20 bg-slate-200 rounded" />
+        </div>
+
+        {/* Mobile Dropdown Skeleton */}
+        <div className="sm:hidden border-b p-4">
+          <div className="h-10 w-full bg-slate-200 rounded-xl" />
+        </div>
+
+        {/* Fake Content */}
+        <div className="p-4 sm:p-6 space-y-6">
+
+          {/* Section Title */}
+          <div className="h-5 w-48 bg-slate-200 rounded" />
+
+          {/* Content Blocks */}
+          <div className="space-y-4">
+            <div className="h-4 w-full bg-slate-200 rounded" />
+            <div className="h-4 w-5/6 bg-slate-200 rounded" />
+            <div className="h-4 w-2/3 bg-slate-200 rounded" />
+          </div>
+
+          {/* Card Placeholder */}
+          <div className="bg-slate-100 rounded-2xl p-6 space-y-4">
+            <div className="h-4 w-32 bg-slate-200 rounded" />
+            <div className="h-4 w-full bg-slate-200 rounded" />
+            <div className="h-4 w-4/5 bg-slate-200 rounded" />
+          </div>
+
+        </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "overview", label: "Overview" },
