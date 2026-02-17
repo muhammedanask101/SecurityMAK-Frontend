@@ -129,7 +129,7 @@ export default function AssignmentsTab({ caseId }: Props) {
 
     {/* Form Skeleton (if admin + form open) */}
     {showForm && (
-      <div className="bg-white border rounded-2xl p-6 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
+      <div className="bg-white border rounded-2xl p-6 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse opacity-80">
         <div className="space-y-2">
           <div className="h-3 w-24 bg-slate-200 rounded" />
           <div className="h-10 bg-slate-200 rounded-xl" />
@@ -150,7 +150,7 @@ export default function AssignmentsTab({ caseId }: Props) {
     {[...Array(3)].map((_, i) => (
       <div
         key={i}
-        className="bg-white border rounded-2xl shadow-sm p-6 flex justify-between items-center animate-pulse"
+        className="bg-white border rounded-2xl shadow-sm p-6 flex justify-between items-center animate-pulse opacity-80"
       >
         <div className="space-y-3 w-full">
           <div className="h-4 w-48 bg-slate-200 rounded" />

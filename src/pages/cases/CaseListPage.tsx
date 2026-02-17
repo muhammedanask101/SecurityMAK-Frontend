@@ -50,7 +50,7 @@ export default function CaseListPage() {
 
  if (loading) {
   return (
-    <div className="p-4 md:p-8 space-y-6 animate-pulse">
+    <div className="p-4 md:p-8 space-y-6 animate-pulse opacity-80">
       {/* Header Skeleton */}
       <div className="flex justify-between items-center">
         <div className="h-6 w-32 bg-gray-200 rounded"></div>
