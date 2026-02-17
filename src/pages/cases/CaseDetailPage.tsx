@@ -50,12 +50,43 @@ export default function CaseDetailPage() {
      Loading / Error
   ============================== */
   if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto p-8 text-sm text-slate-500">
-        Loading case details...
+  return (
+    <div className="max-w-7xl mx-auto space-y-8 animate-pulse">
+
+      {/* Header Skeleton */}
+      <div className="bg-white border rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="h-7 w-64 bg-slate-200 rounded" />
+        <div className="flex gap-3">
+          <div className="h-5 w-24 bg-slate-200 rounded" />
+          <div className="h-5 w-20 bg-slate-200 rounded" />
+          <div className="h-5 w-16 bg-slate-200 rounded" />
+        </div>
       </div>
-    );
-  }
+
+      {/* Workspace Skeleton */}
+      <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
+
+        {/* Tabs Skeleton */}
+        <div className="border-b p-4 flex gap-6">
+          <div className="h-4 w-20 bg-slate-200 rounded" />
+          <div className="h-4 w-20 bg-slate-200 rounded" />
+          <div className="h-4 w-24 bg-slate-200 rounded" />
+          <div className="h-4 w-28 bg-slate-200 rounded" />
+        </div>
+
+        {/* Content Skeleton */}
+        <div className="p-6 space-y-4">
+          <div className="h-4 w-3/4 bg-slate-200 rounded" />
+          <div className="h-4 w-5/6 bg-slate-200 rounded" />
+          <div className="h-4 w-2/3 bg-slate-200 rounded" />
+          <div className="h-32 bg-slate-200 rounded-xl" />
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
 
   if (error) {
     return (

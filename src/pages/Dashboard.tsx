@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 export default function Dashboard() {
   const user = useAuthStore((s) => s.user);
-  const { totalElements, fetchCases, fetchMyCases, loading } = useCaseStore();
+  const { totalElements, fetchCases, fetchMyCases } = useCaseStore();
 
   const isAdmin = user?.role === "ADMIN";
 
@@ -40,13 +40,10 @@ export default function Dashboard() {
             Active Cases
           </h3>
 
-          {loading ? (
-            <div className="mt-3 h-8 w-20 bg-slate-200 rounded animate-pulse opacity-80" />
-          ) : (
             <p className="text-2xl sm:text-3xl font-semibold text-slate-900 mt-2">
               {totalElements}
             </p>
-          )}
+          
         </div>
 
         {/* Organization */}

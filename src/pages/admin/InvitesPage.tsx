@@ -84,20 +84,7 @@ const handleCopy = async (id: number, token: string) => {
 };
 
 useEffect(() => {
-  let isMounted = true;
-
-  const load = async () => {
-    const res = await inviteApi.getInvites(statusFilter);
-    if (isMounted) {
-      setInvites(res.data.content);
-    }
-  };
-
-  load();
-
-  return () => {
-    isMounted = false;
-  };
+  fetchInvites();
 }, [statusFilter]);
 
 
