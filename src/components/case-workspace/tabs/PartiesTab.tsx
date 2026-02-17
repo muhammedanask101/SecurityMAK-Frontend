@@ -35,6 +35,7 @@ export default function PartiesTab({ caseId }: Props) {
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -51,24 +52,31 @@ export default function PartiesTab({ caseId }: Props) {
 
 async function handleSubmit(e: React.FormEvent) {
   e.preventDefault();
+  if (submitting) return;
 
-  if (editingId) {
-    await updateParty(caseId, editingId, form);
-    setEditingId(null);
-  } else {
-    await createParty(caseId, form);
+  try {
+    setSubmitting(true);
+
+    if (editingId) {
+      await updateParty(caseId, editingId, form);
+      setEditingId(null);
+    } else {
+      await createParty(caseId, form);
+    }
+
+    setForm({
+      name: "",
+      role: "PETITIONER",
+      advocateName: "",
+      contactInfo: "",
+      address: "",
+      notes: "",
+    });
+
+    setShowForm(false);
+  } finally {
+    setSubmitting(false);
   }
-
-  setForm({
-    name: "",
-    role: "PETITIONER",
-    advocateName: "",
-    contactInfo: "",
-    address: "",
-    notes: "",
-  });
-
-  setShowForm(false);
 }
 
   async function handleDelete(id: number) {
@@ -92,7 +100,10 @@ async function handleSubmit(e: React.FormEvent) {
         </h2>
 {(isAdmin || isOwner ) &&
         <button
-          onClick={() => setShowForm((prev) => !prev)}
+          onClick={() => {
+  setShowForm((prev) => !prev);
+  setEditingId(null);
+}}
           className="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm hover:bg-slate-800 transition"
         >
           {showForm
@@ -218,11 +229,16 @@ async function handleSubmit(e: React.FormEvent) {
 
           <div className="flex justify-end">
             <button
-              type="submit"
-              className="bg-slate-900 text-white px-5 py-2 rounded-xl text-sm hover:bg-slate-800 transition"
-            >
-              {editingId ? "Update Party" : "Save Party"}
-            </button>
+  type="submit"
+  disabled={submitting}
+  className="..."
+>
+  {submitting
+    ? "Saving..."
+    : editingId
+    ? "Update Party"
+    : "Save Party"}
+</button>
           </div>
         </form>
       )}

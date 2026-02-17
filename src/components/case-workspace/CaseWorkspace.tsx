@@ -40,64 +40,77 @@ export default function CaseWorkspace({ caseId }: Props) {
     { key: "comments", label: "Notes" },
   ];
 
-  return (
-    <div className="space-y-6">
+return (
+  <div className="space-y-6">
 
- 
-
-      {/* =========================
+    {/* =========================
          TABS CONTAINER
-      ========================= */}
-      <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
+    ========================= */}
+    <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
 
-        {/* Tab Navigation */}
-        <div className="flex overflow-x-auto border-b scrollbar-hide">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.key;
+      {/* Mobile Tab Selector (Dropdown) */}
+      <div className="sm:hidden border-b p-4">
+        <select
+          value={activeTab}
+          onChange={(e) => setActiveTab(e.target.value as Tab)}
+          className="w-full border rounded-xl px-3 py-2 text-sm bg-white"
+        >
+          {tabs.map((tab) => (
+            <option key={tab.key} value={tab.key}>
+              {tab.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
-            return (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`px-5 py-3 text-sm whitespace-nowrap transition border-b-2 ${
-                  isActive
-                    ? "border-slate-900 text-slate-900 font-medium"
-                    : "border-transparent text-slate-500 hover:text-slate-800"
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
+      {/* Desktop Tab Navigation */}
+      <div className="hidden sm:flex overflow-x-auto border-b scrollbar-hide">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.key;
 
-        {/* Tab Content */}
-        <div className="p-4 sm:p-6">
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`px-5 py-3 text-sm whitespace-nowrap transition border-b-2 ${
+                isActive
+                  ? "border-slate-900 text-slate-900 font-medium"
+                  : "border-transparent text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
 
-          {activeTab === "overview" && <OverviewTab />}
+      {/* Tab Content */}
+      <div className="p-4 sm:p-6">
 
-          {activeTab === "parties" && (
-            <PartiesTab caseId={caseId} />
-          )}
+        {activeTab === "overview" && <OverviewTab />}
 
-          {activeTab === "events" && (
-            <EventsTab caseId={caseId} />
-          )}
+        {activeTab === "parties" && (
+          <PartiesTab caseId={caseId} />
+        )}
 
-          {activeTab === "assignments" && (
-            <AssignmentsTab caseId={caseId} />
-          )}
+        {activeTab === "events" && (
+          <EventsTab caseId={caseId} />
+        )}
 
-          {activeTab === "documents" && (
-            <DocumentsTab caseId={caseId} />
-          )}
+        {activeTab === "assignments" && (
+          <AssignmentsTab caseId={caseId} />
+        )}
 
-          {activeTab === "comments" && (
-            <CommentsTab caseId={caseId} />
-          )}
+        {activeTab === "documents" && (
+          <DocumentsTab caseId={caseId} />
+        )}
 
-        </div>
+        {activeTab === "comments" && (
+          <CommentsTab caseId={caseId} />
+        )}
+
       </div>
     </div>
-  );
+  </div>
+);
 }

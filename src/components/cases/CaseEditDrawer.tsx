@@ -99,8 +99,13 @@ export default function CaseEditDrawer({
     description !== (caseData.description ?? "");
 
   return (
-    <div className="w-full sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl bg-white h-full shadow-2xl border-l border-slate-200 flex flex-col">
-
+<div className="
+  fixed inset-0 z-50 bg-white
+  sm:relative sm:w-full sm:max-w-lg
+  md:max-w-xl lg:max-w-2xl xl:max-w-3xl
+  sm:shadow-2xl sm:border-l sm:border-slate-200
+  flex flex-col
+">
       {/* ================= HEADER ================= */}
       <div className="px-6 sm:px-8 py-6 border-b bg-white sticky top-0 z-10">
         <div className="flex items-start justify-between gap-4">
