@@ -13,12 +13,11 @@ export default function Topbar({ onMenuClick }: Props) {
       <div className="flex items-center gap-4">
         {/* Mobile Menu Button */}
         <button
-          onClick={onMenuClick}
-          className="lg:hidden text-slate-600"
-        >
-          ☰
-        </button>
-
+  onClick={onMenuClick}
+  className="lg:hidden text-slate-600 text-xl px-3 rounded-xl hover:bg-slate-100 transition"
+>
+  ☰
+</button>
         <div className="hidden md:block text-sm text-slate-600">
           {user?.organizationName
             ? `Organization: ${user.organizationName}`

@@ -91,178 +91,176 @@ export default function ProfilePage() {
     CRITICAL: "bg-red-100 text-red-700",
   };
 
-  return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-8 pt-3 pb-8 md:pt-8 md:pb-8 space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">
-          Profile
-        </h1>
-        <p className="text-slate-600 mt-2 text-sm">
-          Manage your account information and security settings.
-        </p>
-      </div>
+ return (
+  <div className="max-w-5xl mx-auto pt-3 pb-8 md:px-8 md:pt-6 lg:pb:6 sm:py-10 space-y-10">
 
-      {/* Account Information */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
-        <h2 className="text-lg font-semibold text-slate-900">
-          Account Information
-        </h2>
+    {/* Header */}
+    <div className="space-y-2">
+      <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900">
+        Profile
+      </h1>
+      <p className="text-slate-600 text-sm">
+        Manage your account information and security settings.
+      </p>
+    </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
-          <InfoField label="Email" value={user?.email} />
-          <InfoField label="Role" value={user?.role} />
-          <InfoField
-            label="Organization"
-            value={user?.organizationName ?? "—"}
-          />
+    {/* Account Information */}
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-8 space-y-8">
+      <h2 className="text-lg font-semibold text-slate-900">
+        Account Information
+      </h2>
 
-          <div>
-            <p className="text-slate-500">Clearance Level</p>
-            {user?.clearanceLevel ? (
-              <span
-                className={`inline-block mt-1 px-2 py-1 text-xs font-medium rounded-md ${
-                  clearanceStyles[user.clearanceLevel] ??
-                  "bg-slate-100 text-slate-700"
-                }`}
-              >
-                {user.clearanceLevel}
-              </span>
-            ) : (
-              <p className="font-medium text-slate-900">—</p>
-            )}
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
+        <InfoField label="Email" value={user?.email} />
+        <InfoField label="Role" value={user?.role} />
+        <InfoField
+          label="Organization"
+          value={user?.organizationName ?? "—"}
+        />
+
+        <div>
+          <p className="text-slate-500">Clearance Level</p>
+          {user?.clearanceLevel ? (
+            <span
+              className={`inline-block mt-2 px-3 py-1 text-xs font-medium rounded-md ${
+                clearanceStyles[user.clearanceLevel] ??
+                "bg-slate-100 text-slate-700"
+              }`}
+            >
+              {user.clearanceLevel}
+            </span>
+          ) : (
+            <p className="font-medium text-slate-900 mt-1">—</p>
+          )}
         </div>
       </div>
+    </div>
 
-      {/* Security Section */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6 max-w-xl">
-        <h2 className="text-lg font-semibold text-slate-900">
-          Security
-        </h2>
+    {/* Security Section */}
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-8 space-y-8 max-w-2xl">
+      <h2 className="text-lg font-semibold text-slate-900">
+        Security
+      </h2>
 
-        <form
-          onSubmit={handlePasswordChange}
-          className="space-y-4 max-w-md"
-        >
-          <div>
-            <label className="block text-sm text-slate-600 mb-1">
-              Current Password
-            </label>
-            <input
-              type="password"
-              required
-              value={currentPassword}
-              onChange={(e) =>
-                setCurrentPassword(e.target.value)
-              }
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
-            />
-          </div>
+      <form
+        onSubmit={handlePasswordChange}
+        className="space-y-5"
+      >
+        <div>
+          <label className="block text-sm text-slate-600 mb-2">
+            Current Password
+          </label>
+          <input
+            type="password"
+            required
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm text-slate-600 mb-1">
-              New Password
-            </label>
-            <input
-              type="password"
-              required
-              value={newPassword}
-              onChange={(e) =>
-                setNewPassword(e.target.value)
-              }
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
-            />
-          </div>
-          <div>
-              <label className="block text-sm text-slate-600 mb-1">
-              Confirm Password
-            </label>
+        <div>
+          <label className="block text-sm text-slate-600 mb-2">
+            New Password
+          </label>
+          <input
+            type="password"
+            required
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm text-slate-600 mb-2">
+            Confirm Password
+          </label>
           <input
             type="password"
             required
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 ${
-                passwordsMismatch
+            className={`w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
+              passwordsMismatch
                 ? "border-red-400 focus:ring-red-400"
                 : "border-slate-300 focus:ring-slate-400"
             }`}
-            />
-            </div>
-
-            {passwordsMismatch && (
-            <p className="text-xs text-red-600 mt-1">
-                Passwords do not match.
+          />
+          {passwordsMismatch && (
+            <p className="text-xs text-red-600 mt-2">
+              Passwords do not match.
             </p>
-            )}
+          )}
+        </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 bg-slate-900 text-white text-sm rounded-lg hover:bg-slate-800 transition disabled:opacity-50"
-          >
-            {loading ? "Updating..." : "Update Password"}
-          </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full sm:w-auto px-6 py-3 bg-slate-900 text-white text-sm rounded-xl hover:bg-slate-800 transition disabled:opacity-50"
+        >
+          {loading ? "Updating..." : "Update Password"}
+        </button>
 
-          {error && (
-        <p className="text-sm text-red-600 mt-2">
+        {error && (
+          <p className="text-sm text-red-600 mt-2">
             {error}
-        </p>
+          </p>
         )}
 
         {message && (
-        <p className="text-sm text-emerald-600 mt-2">
+          <p className="text-sm text-emerald-600 mt-2">
             {message}
-        </p>
+          </p>
         )}
+      </form>
+    </div>
+
+    {/* Danger Zone */}
+    {user?.role !== "ADMIN" && (
+      <div className="bg-white rounded-2xl border border-red-200 shadow-sm p-5 sm:p-8 space-y-6 max-w-2xl">
+        <h2 className="text-lg font-semibold text-red-700">
+          Danger Zone
+        </h2>
+
+        <p className="text-sm text-slate-600 leading-relaxed">
+          Disabling your account will immediately revoke access.
+          An administrator will need to reactivate it.
+        </p>
+
+        <form onSubmit={handleDisableAccount} className="space-y-5">
+          <div>
+            <label className="block text-sm text-slate-600 mb-2">
+              Enter Password
+            </label>
+            <input
+              type="password"
+              required
+              value={disablePassword}
+              onChange={(e) => setDisablePassword(e.target.value)}
+              className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={disableLoading}
+            className="w-full sm:w-auto px-6 py-3 bg-red-600 text-white text-sm rounded-xl hover:bg-red-700 transition disabled:opacity-50"
+          >
+            {disableLoading ? "Disabling..." : "Disable Account"}
+          </button>
+
+          {disableError && (
+            <p className="text-sm text-red-600 mt-2">
+              {disableError}
+            </p>
+          )}
         </form>
       </div>
-
-      {/* Danger Zone */}
-{user?.role !== "ADMIN" && (
-  <div className="bg-white rounded-2xl border border-red-200 shadow-sm p-6 space-y-6 max-w-xl">
-    <h2 className="text-lg font-semibold text-red-700">
-      Danger Zone
-    </h2>
-
-    <p className="text-sm text-slate-600">
-      Disabling your account will immediately revoke access.
-      An administrator will need to reactivate it.
-    </p>
-
-    <form onSubmit={handleDisableAccount} className="space-y-4 max-w-md">
-      <div>
-        <label className="block text-sm text-slate-600 mb-1">
-          Enter Password
-        </label>
-        <input
-          type="password"
-          required
-          value={disablePassword}
-          onChange={(e) => setDisablePassword(e.target.value)}
-          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
-        />
-      </div>
-
-      <button
-        type="submit"
-        disabled={disableLoading}
-        className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition disabled:opacity-50"
-      >
-        {disableLoading ? "Disabling..." : "Disable Account"}
-      </button>
-
-      {disableError && (
-        <p className="text-sm text-red-600 mt-2">
-          {disableError}
-        </p>
-      )}
-    </form>
+    )}
   </div>
-)}
-    </div>
-  );
+);
+
 }
 
 /* Reusable Info Field */

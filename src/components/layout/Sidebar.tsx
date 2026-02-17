@@ -17,7 +17,7 @@ export default function Sidebar({ onNavigate }: Props) {
       ? pathname === "/"
       : pathname.startsWith(path);
 
-  return `block px-3 py-2 rounded-lg text-sm transition ${
+  return `block px-4 py-3 rounded-lg text-sm sm:text-sm transition ${
     active
       ? "bg-slate-800 text-white"
       : "text-slate-300 hover:bg-slate-800 hover:text-white"
